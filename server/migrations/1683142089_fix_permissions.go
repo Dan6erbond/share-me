@@ -45,7 +45,7 @@ func init() {
 			return err
 		}
 
-		postsCollection.ViewRule = types.Pointer("@request.auth.id = author.id || public=true")
+		postsCollection.ViewRule = types.Pointer("@request.auth.id = author.id || public = true")
 
 		err = daos.New(db).SaveCollection(postsCollection)
 

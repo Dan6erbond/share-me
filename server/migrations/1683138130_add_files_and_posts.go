@@ -68,8 +68,6 @@ func init() {
 			),
 		}
 
-		filesCollection.SetId("files")
-
 		err = daos.New(db).SaveCollection(filesCollection)
 
 		if err != nil {
@@ -80,7 +78,7 @@ func init() {
 			Name:       "posts",
 			Type:       models.CollectionTypeBase,
 			ViewRule:   nil,
-			ListRule:   types.Pointer("@request.auth.id = author.id || public=true"),
+			ListRule:   types.Pointer("@request.auth.id = author.id || public = true"),
 			CreateRule: nil,
 			UpdateRule: types.Pointer("@request.auth.id = author.id"),
 			DeleteRule: types.Pointer("@request.auth.id = author.id"),
@@ -102,7 +100,7 @@ func init() {
 					Type: schema.FieldTypeRelation,
 					Name: "files",
 					Options: &schema.RelationOptions{
-						CollectionId: "files",
+						CollectionId: filesCollection.Id,
 					},
 				},
 				&schema.SchemaField{
@@ -115,8 +113,6 @@ func init() {
 				},
 			),
 		}
-
-		postsCollection.SetId("posts")
 
 		err = daos.New(db).SaveCollection(postsCollection)
 
