@@ -1,0 +1,10 @@
+version: "3.8"
+
+services:
+  pocketbase:
+    build:
+      context: .
+    volumes:
+      - ./pb_data:/pb/pb_data
+    ports:
+      - 8080:8080
