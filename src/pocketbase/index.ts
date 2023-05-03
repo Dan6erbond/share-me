@@ -1,7 +1,8 @@
 import { IncomingMessage, ServerResponse } from "http";
 import PocketBase from "pocketbase";
 
-export const initPocketBase = () => new PocketBase(process.env.POCKETBASE_URL);
+export const initPocketBase = () =>
+  new PocketBase(process.env.NEXT_PUBLIC_POCKETBASE_URL);
 
 export const initPocketBaseServer = async (
   req?: IncomingMessage & {
