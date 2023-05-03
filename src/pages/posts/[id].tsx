@@ -343,26 +343,34 @@ export const getServerSideProps: GetServerSideProps<PostProps> = async ({
 
   const { id } = query;
 
-  const record = await pb
-    .collection("posts")
-    .getOne<Post>(Array.isArray(id) ? id[0] : id!, {
-      expand: "author,files",
-    });
+  let record: Post;
 
-  const images = (record.expand.files as File[]).filter((f) =>
+  try {
+    record = await pb
+      .collection("posts")
+      .getOne<Post>(Array.isArray(id) ? id[0] : id!, {
+        expand: "author,files",
+      });
+  } catch (ex) {
+    if ((ex as any).response.code === 404) {
+      return { notFound: true };
+    }
+  }
+
+  const images = (record!.expand.files as File[]).filter((f) =>
     IMAGE_MIME_TYPE.includes(f.type as any)
   );
-  const videos = (record.expand.files as File[]).filter(
+  const videos = (record!.expand.files as File[]).filter(
     (f) => !IMAGE_MIME_TYPE.includes(f.type as any)
   );
 
   return {
     props: {
-      title: record.title,
-      nsfw: record.nsfw,
-      isPublic: record.public,
-      userIsAuthor: pb.authStore.model?.id === record.author,
-      postAuthorUsername: (record.expand.author as Record).username,
+      title: record!.title,
+      nsfw: record!.nsfw,
+      isPublic: record!.public,
+      userIsAuthor: pb.authStore.model?.id === record!.author,
+      postAuthorUsername: (record!.expand.author as Record).username,
       image: images.length ? pb.files.getUrl(images[0], images[0].file) : null,
       video: videos.length ? pb.files.getUrl(videos[0], videos[0].file) : null,
     },
