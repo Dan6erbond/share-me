@@ -20,8 +20,8 @@ func init() {
 		filesCollection := &models.Collection{
 			Name:       "files",
 			Type:       models.CollectionTypeBase,
-			ListRule:   nil,
 			ViewRule:   nil,
+			ListRule:   nil,
 			CreateRule: nil,
 			UpdateRule: types.Pointer("@request.auth.id = author.id"),
 			DeleteRule: types.Pointer("@request.auth.id = author.id"),
@@ -79,8 +79,8 @@ func init() {
 		postsCollection := &models.Collection{
 			Name:       "posts",
 			Type:       models.CollectionTypeBase,
-			ListRule:   types.Pointer("@request.auth.id = author.id || public=true"),
 			ViewRule:   nil,
+			ListRule:   types.Pointer("@request.auth.id = author.id || public=true"),
 			CreateRule: nil,
 			UpdateRule: types.Pointer("@request.auth.id = author.id"),
 			DeleteRule: types.Pointer("@request.auth.id = author.id"),
