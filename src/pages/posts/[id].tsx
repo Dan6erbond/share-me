@@ -55,9 +55,14 @@ export default function Post(props: PostProps) {
   const [isPublic, setIsPublic] = useState(props.isPublic);
   const [nsfw, setNsfw] = useState(props.nsfw);
 
+  const [blurred, setBlurred] = useState<boolean[]>([]);
   const [uploading, setUploading] = useState(false);
 
   const [debouncedTitle] = useDebouncedValue(title, 200, { leading: true });
+
+  useEffect(() => {
+    blurred.length !== files.length && setBlurred(files.map(() => nsfw));
+  }, [blurred, nsfw, setBlurred, files]);
 
   const setValues = useCallback(
     (record: Post) => {
@@ -117,11 +122,18 @@ export default function Post(props: PostProps) {
     setValues(record);
   };
 
-  const setName = async (id: string, name: string) => {
-    const record = await pb.collection("files").update<File>(id, {
-      name,
-    });
-    setFiles((files) => files.map((f) => (f.id === id ? record : f)));
+  const updateFile = async (
+    id: string,
+    values: { name?: string; description?: string }
+  ) => {
+    try {
+      const record = await pb.collection("files").update<File>(id, {
+        ...values,
+      });
+      setFiles((files) => files.map((f) => (f.id === id ? record : f)));
+    } catch (ex) {
+      console.error(ex);
+    }
   };
 
   useEffect(() => {
@@ -146,18 +158,6 @@ export default function Post(props: PostProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [post, debouncedTitle, isPublic, nsfw]);
 
-  const h = (
-    <Head>
-      <title>Share Me</title>
-      <meta
-        name="description"
-        content="Easily share images and videos with others"
-      />
-      <meta name="viewport" content="width=device-width, initial-scale=1" />
-      <link rel="icon" href="/favicon.ico" />
-    </Head>
-  );
-
   return (
     <>
       <Head>
@@ -170,6 +170,13 @@ export default function Post(props: PostProps) {
         <meta property="og:url" content="" />
         {props.image && <meta property="og:image" content={props.image} />}
         {props.video && <meta property="og:video" content={props.video} />}
+        <meta property="twitter:card" content="summary" />
+        <meta property="twitter:title" content={`${post?.title} | Share Me`} />
+        <meta
+          property="twitter:description"
+          content={`Shared by ${props.postAuthorUsername}`}
+        />
+        {props.image && <meta property="twitter:image" content={props.image} />}
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
@@ -195,12 +202,17 @@ export default function Post(props: PostProps) {
             ) : (
               <Text>{post?.title}</Text>
             )}
-            {files.map((f) => (
+            {files.map((f, idx) => (
               <Paper key={f.id} bg="dark.6" p="lg" withBorder>
                 <Stack>
                   <Group sx={{ justifyContent: "space-between" }}>
                     {userIsAuthor ? (
-                      <TextInput defaultValue={f.name} />
+                      <TextInput
+                        defaultValue={f.name}
+                        onChange={(ev) =>
+                          updateFile(f.id, { name: ev.target.value })
+                        }
+                      />
                     ) : (
                       <Text>{f.name}</Text>
                     )}
@@ -219,9 +231,15 @@ export default function Post(props: PostProps) {
                       alt=""
                       maw="100%"
                       sx={{
-                        filter: post?.nsfw ? "blur(10px)" : "",
+                        filter: blurred[idx] ? "blur(10px)" : "",
                         overflow: "hidden",
                       }}
+                      onClick={() =>
+                        nsfw &&
+                        setBlurred((blurred) =>
+                          blurred.map((b, i) => (i === idx ? !b : b))
+                        )
+                      }
                     />
                   ) : (
                     <video
@@ -229,13 +247,26 @@ export default function Post(props: PostProps) {
                       controls
                       style={{
                         maxWidth: "100%",
-                        filter: post?.nsfw ? "blur(10px)" : "",
+                        filter: blurred[idx] ? "blur(10px)" : "",
                         overflow: "hidden",
                       }}
+                      onClick={() =>
+                        nsfw &&
+                        setBlurred((blurred) =>
+                          blurred.map((b, i) => (i === idx ? !b : b))
+                        )
+                      }
                     />
                   )}
                   {userIsAuthor ? (
-                    <TextInput placeholder="Description" variant="unstyled" />
+                    <TextInput
+                      placeholder="Description"
+                      variant="unstyled"
+                      value={f.description}
+                      onChange={(ev) =>
+                        updateFile(f.id, { description: ev.target.value })
+                      }
+                    />
                   ) : (
                     <Text>{f.description}</Text>
                   )}
