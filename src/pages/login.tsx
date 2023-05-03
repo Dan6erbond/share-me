@@ -8,6 +8,7 @@ import {
   Stack,
   Text,
   TextInput,
+  Title,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import Link from "next/link";
@@ -50,6 +51,7 @@ function Login() {
       <Group position="center" h="100vh">
         <form onSubmit={form.onSubmit(login)}>
           <Stack>
+            <Title>Share Me</Title>
             <TextInput
               label="Username"
               miw="300px"
@@ -61,7 +63,7 @@ function Login() {
               {...form.getInputProps("password")}
             />
             {loginError && <Text color="red">{loginError}</Text>}
-            <Group>
+            <Group sx={{ justifyContent: "space-between" }}>
               <Anchor component={Link} href="/sign-up">
                 Sign Up
               </Anchor>
