@@ -15,4 +15,6 @@ RUN GOOS=linux go build -o /pb/pocketbase
 
 EXPOSE 8080
 
+RUN chmod +x entrypoint.sh
+
 CMD [ "./entrypoint.sh" ]
