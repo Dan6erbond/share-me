@@ -53,6 +53,9 @@ function Login() {
         <form onSubmit={form.onSubmit(login)}>
           <Stack>
             <Title>Share Me</Title>
+            <Title order={3} color="gray.5">
+              Login
+            </Title>
             <TextInput
               label="Username"
               miw="300px"

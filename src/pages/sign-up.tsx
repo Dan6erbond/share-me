@@ -7,6 +7,7 @@ import {
   PasswordInput,
   Stack,
   TextInput,
+  Title,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { GetServerSideProps } from "next";
@@ -65,6 +66,10 @@ function SignUp() {
       <Group position="center" h="100vh">
         <form onSubmit={form.onSubmit(signUp)}>
           <Stack>
+            <Title>Share Me</Title>
+            <Title order={3} color="gray.5">
+              Sign Up
+            </Title>
             <TextInput
               label="Email"
               {...form.getInputProps("email")}
