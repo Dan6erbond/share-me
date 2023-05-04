@@ -541,7 +541,9 @@ export const getServerSideProps: GetServerSideProps<PostProps> = async ({
       isPublic: record.public,
       userIsAuthor: pb.authStore.model?.id === record.author,
       postAuthorUsername: (record.expand.author as Record).username,
-      image: images.length ? pb.files.getUrl(images[0], images[0].file) : null,
+      image: images.length
+        ? pb.files.getUrl(images[0], images[0].file, { thumb: "1200x630" })
+        : null,
       video: videos.length ? pb.files.getUrl(videos[0], videos[0].file) : null,
     }),
   };
