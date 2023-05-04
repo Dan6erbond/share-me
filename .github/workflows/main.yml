@@ -33,6 +33,7 @@ jobs:
         with:
           body_path: GITHUB_CHANGELOG.md
           tag_name: ${{ steps.release.outputs.version }}
+          token: ${{ github.token }}
       - name: Log in to the Container registry
         uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
         if: ${{ steps.changelog.outputs.skipped == 'false' }}
