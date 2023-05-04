@@ -227,37 +227,91 @@ export default function Post(props: PostProps) {
                     )}
                   </Group>
                   {IMAGE_MIME_TYPE.includes(f.type as any) ? (
-                    <Image
-                      src={pb.files.getUrl(f, f.file)}
-                      alt=""
-                      maw="100%"
+                    <Box
+                      pos="relative"
                       sx={{
-                        filter: blurred[idx] ? "blur(10px)" : "",
-                        overflow: "hidden",
+                        ":hover": {
+                          "> button": {
+                            display: "block",
+                          },
+                        },
                       }}
-                      onClick={() =>
-                        nsfw &&
-                        setBlurred((blurred) =>
-                          blurred.map((b, i) => (i === idx ? !b : b))
-                        )
-                      }
-                    />
+                    >
+                      <Image
+                        src={pb.files.getUrl(f, f.file)}
+                        alt=""
+                        maw="100%"
+                        sx={{
+                          filter: blurred[idx] ? "blur(10px)" : "",
+                          overflow: "hidden",
+                        }}
+                        onClick={() =>
+                          nsfw &&
+                          setBlurred((blurred) =>
+                            blurred.map((b, i) => (i === idx ? !b : b))
+                          )
+                        }
+                      />
+                      <CopyButton value={pb.files.getUrl(f, f.file)}>
+                        {({ copy, copied }) => (
+                          <Button
+                            pos="absolute"
+                            top="8px"
+                            right="8px"
+                            size="sm"
+                            radius="md"
+                            variant="gradient"
+                            onClick={copy}
+                            display="none"
+                          >
+                            {copied ? "Copied" : "Copy Link"}
+                          </Button>
+                        )}
+                      </CopyButton>
+                    </Box>
                   ) : (
-                    <video
-                      src={pb.files.getUrl(f, f.file)}
-                      controls
-                      style={{
-                        maxWidth: "100%",
-                        filter: blurred[idx] ? "blur(10px)" : "",
-                        overflow: "hidden",
+                    <Box
+                      pos="relative"
+                      sx={{
+                        ":hover": {
+                          "> button": {
+                            display: "block",
+                          },
+                        },
                       }}
-                      onClick={() =>
-                        nsfw &&
-                        setBlurred((blurred) =>
-                          blurred.map((b, i) => (i === idx ? !b : b))
-                        )
-                      }
-                    />
+                    >
+                      <video
+                        src={pb.files.getUrl(f, f.file)}
+                        controls
+                        style={{
+                          maxWidth: "100%",
+                          filter: blurred[idx] ? "blur(10px)" : "",
+                          overflow: "hidden",
+                        }}
+                        onClick={() =>
+                          nsfw &&
+                          setBlurred((blurred) =>
+                            blurred.map((b, i) => (i === idx ? !b : b))
+                          )
+                        }
+                      />
+                      <CopyButton value={pb.files.getUrl(f, f.file)}>
+                        {({ copy, copied }) => (
+                          <Button
+                            pos="absolute"
+                            top="8px"
+                            right="8px"
+                            size="sm"
+                            radius="md"
+                            variant="gradient"
+                            onClick={copy}
+                            display="none"
+                          >
+                            {copied ? "Copied" : "Copy Link"}
+                          </Button>
+                        )}
+                      </CopyButton>
+                    </Box>
                   )}
                   {userIsAuthor ? (
                     <TextInput
