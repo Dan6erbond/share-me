@@ -1,0 +1,81 @@
+name: Bump version, create release and build Docker image
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME_FRONTEND: ${{ github.repository }}-frontend
+  IMAGE_NAME_SERVER: ${{ github.repository }}-server
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Semver release
+        id: release
+        uses: oknozor/cocogitto-action@v2
+        with:
+          release: true
+          git-user: "Cog Bot"
+          git-user-email: "shareme@ravianand.me"
+      - name: Generate Changelog
+        run: cog changelog --at ${{ steps.release.outputs.version }} -t full_hash > GITHUB_CHANGELOG.md
+      - name: Upload github release
+        uses: softprops/action-gh-release@v1
+        with:
+          body_path: GITHUB_CHANGELOG.md
+          tag_name: ${{ steps.release.outputs.version }}
+      - name: Log in to the Container registry
+        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+        if: ${{ steps.changelog.outputs.skipped == 'false' }}
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta-frontend
+        uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}
+      - name: Lowercase package
+        id: tags1-frontend
+        uses: ASzc/change-string-case-action@v1
+        with:
+          string: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}:${{ steps.release.outputs.version }}
+      - name: Lowercase package
+        id: tags2-frontend
+        uses: ASzc/change-string-case-action@v1
+        with:
+          string: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}:latest
+      - name: Build and push Docker image
+        uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.tags1-frontend.outputs.lowercase }},${{ steps.tags2-frontend.outputs.lowercase }}
+          labels: ${{ steps.meta-frontend.outputs.labels }}
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta-server
+        uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_SERVER }}
+      - name: Lowercase package
+        id: tags1-server
+        uses: ASzc/change-string-case-action@v1
+        with:
+          string: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_SERVER }}:${{ steps.release.outputs.version }}
+      - name: Lowercase package
+        id: tags2-server
+        uses: ASzc/change-string-case-action@v1
+        with:
+          string: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_SERVER }}:latest
+      - name: Build and push Docker image
+        uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
+        with:
+          context: server
+          push: true
+          tags: ${{ steps.tags1-server.outputs.lowercase }},${{ steps.tags2-server.outputs.lowercase }}
+          labels: ${{ steps.meta-server.outputs.labels }}
