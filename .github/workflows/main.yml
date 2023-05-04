@@ -54,7 +54,7 @@ jobs:
         uses: ASzc/change-string-case-action@v1
         with:
           string: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}:latest
-      - name: Build and push Docker image
+      - name: Build and push frontend Docker image
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
         with:
           context: .
@@ -76,7 +76,7 @@ jobs:
         uses: ASzc/change-string-case-action@v1
         with:
           string: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_SERVER }}:latest
-      - name: Build and push Docker image
+      - name: Build and push server Docker image
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
         with:
           context: server
