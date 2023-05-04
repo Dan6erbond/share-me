@@ -191,7 +191,7 @@ export default function Post(props: PostProps) {
       <Box component="main" p="lg">
         <Nav />
         <Group sx={{ justifyContent: "center" }} align="start">
-          <Stack maw="650px" miw="350px" sx={{ flex: 1, flexGrow: 1 }}>
+          <Stack maw="650px" miw="350px" sx={{ flex: 1, flexGrow: 1 }} px="md">
             {userIsAuthor ? (
               <TextInput
                 placeholder="Give your Post a Unique Title"

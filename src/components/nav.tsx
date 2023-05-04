@@ -1,8 +1,18 @@
-import { ActionIcon, Anchor, Box, Group, Title, Button } from "@mantine/core";
-import { IconLogout,IconCirclePlus } from "@tabler/icons-react";
+import {
+  ActionIcon,
+  Anchor,
+  Box,
+  Button,
+  Group,
+  MediaQuery,
+  Title,
+  em,
+  getBreakpointValue,
+} from "@mantine/core";
+import { IconCirclePlus, IconLogout } from "@tabler/icons-react";
 import Link from "next/link";
-import { useAuth } from "../pocketbase/auth";
 import { usePocketBase } from "../pocketbase";
+import { useAuth } from "../pocketbase/auth";
 
 function Nav() {
   const pb = usePocketBase();
@@ -17,7 +27,17 @@ function Nav() {
           color="white"
           sx={{ textDecoration: "none" }}
         >
-          <Title>Share Me</Title>
+          <Title
+            sx={(theme) => ({
+              [`@media (max-width: ${em(
+                getBreakpointValue(theme.breakpoints.sm) - 1
+              )})`]: {
+                fontSize: theme.headings.sizes.h3.fontSize,
+              },
+            })}
+          >
+            Share Me
+          </Title>
         </Anchor>
         <Box sx={{ flexGrow: 1 }} />
         {user ? (
@@ -28,9 +48,14 @@ function Nav() {
               size="md"
               component={Link}
               href="/"
-              leftIcon={<IconCirclePlus/>}
+              leftIcon={<IconCirclePlus />}
             >
-              Create Post
+              <MediaQuery smallerThan="sm" styles={{ display: "none" }}>
+                <Box>Create Post</Box>
+              </MediaQuery>
+              <MediaQuery largerThan="sm" styles={{ display: "none" }}>
+                <Box>Post</Box>
+              </MediaQuery>
             </Button>
             <ActionIcon onClick={() => pb.authStore.clear()}>
               <IconLogout />
