@@ -1,3 +1,4 @@
+import { Admin, Record } from "pocketbase";
 import { useEffect, useState } from "react";
 import { usePocketBase } from "./context";
 
@@ -10,7 +11,7 @@ export const useAuth = () => {
     pb.authStore.onChange((_, model) => {
       setUser(model);
     });
-  });
+  }, [pb, setUser]);
 
   return { user };
 };

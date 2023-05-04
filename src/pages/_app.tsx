@@ -2,9 +2,11 @@ import { initPocketBase, PocketBaseProvider } from "@/pocketbase";
 import { MantineProvider } from "@mantine/core";
 import { AppProps } from "next/app";
 import Head from "next/head";
+import PocketBase from "pocketbase";
+import { useRef } from "react";
 
-export default function App(props: AppProps) {
-  const { Component, pageProps } = props;
+export default function App({ Component, pageProps }: AppProps) {
+  const pbRef = useRef<PocketBase>(initPocketBase(pageProps.pocketBaseUrl));
 
   return (
     <>
@@ -24,7 +26,7 @@ export default function App(props: AppProps) {
           colorScheme: "dark",
         }}
       >
-        <PocketBaseProvider client={initPocketBase()}>
+        <PocketBaseProvider client={pbRef.current}>
           <Component {...pageProps} />
         </PocketBaseProvider>
       </MantineProvider>

@@ -1,9 +1,13 @@
-import { initPocketBaseServer, usePocketBase } from "@/pocketbase";
+import Nav from "@/components/nav";
+import {
+  initPocketBaseServer,
+  pocketBaseUrl,
+  usePocketBase,
+} from "@/pocketbase";
 import { useAuth } from "@/pocketbase/auth";
 import { File, Post } from "@/pocketbase/models";
 import {
   ActionIcon,
-  Anchor,
   Box,
   Button,
   Checkbox,
@@ -16,7 +20,6 @@ import {
   Switch,
   Text,
   TextInput,
-  Title,
   rem,
   useMantineTheme,
 } from "@mantine/core";
@@ -26,7 +29,6 @@ import { IconPhoto, IconTrash, IconUpload, IconX } from "@tabler/icons-react";
 import { FileWithPath } from "file-selector";
 import { GetServerSideProps } from "next";
 import Head from "next/head";
-import Link from "next/link";
 import { useRouter } from "next/router";
 import { Record } from "pocketbase";
 import { useCallback, useEffect, useState } from "react";
@@ -57,6 +59,7 @@ export default function Post(props: PostProps) {
 
   const [blurred, setBlurred] = useState<boolean[]>([]);
   const [uploading, setUploading] = useState(false);
+  const [uploads, setUploads] = useState([]);
 
   const [debouncedTitle] = useDebouncedValue(title, 200, { leading: true });
 
@@ -92,7 +95,10 @@ export default function Post(props: PostProps) {
   }, [id, fetchPost]);
 
   const uploadFiles = async (f: FileWithPath[]) => {
-    const uploads = f.map(async (file) => {
+    setUploading(true);
+    const records: File[] = [];
+
+    for (const file of f) {
       const formData = new FormData();
       formData.append("file", file);
       formData.append("name", file.name);
@@ -100,11 +106,10 @@ export default function Post(props: PostProps) {
       formData.append("author", user?.id!);
       formData.append("description", "");
       const createdRecord = await pb.collection("files").create<File>(formData);
-      return createdRecord;
-    });
-    setUploading(true);
-    const results = await Promise.all(uploads);
-    const newFiles = [...files, ...results];
+      records.push(createdRecord);
+    }
+
+    const newFiles = [...files, ...records];
     setFiles(newFiles);
     const record = await pb
       .collection("posts")
@@ -158,20 +163,23 @@ export default function Post(props: PostProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [post, debouncedTitle, isPublic, nsfw]);
 
+  const siteTitle = post?.title || `Post by ${props.postAuthorUsername}`;
+
   return (
     <>
       <Head>
-        <title>{post?.title} | Share Me</title>
-        <meta property="og:title" content={`${post?.title} | Share Me`} />
+        <title>{siteTitle} | Share Me</title>
+        <meta property="og:title" content={`${siteTitle} | Share Me`} />
         <meta
           name="description"
           content={`Shared by ${props.postAuthorUsername}`}
         />
         <meta property="og:url" content="" />
+        <meta property="og:type" content="article" />
         {props.image && <meta property="og:image" content={props.image} />}
         {props.video && <meta property="og:video" content={props.video} />}
-        <meta property="twitter:card" content="summary" />
-        <meta property="twitter:title" content={`${post?.title} | Share Me`} />
+        <meta property="twitter:card" content="summary_large_image" />
+        <meta property="twitter:title" content={`${siteTitle} | Share Me`} />
         <meta
           property="twitter:description"
           content={`Shared by ${props.postAuthorUsername}`}
@@ -181,14 +189,7 @@ export default function Post(props: PostProps) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Box component="main" p="lg">
-        <Anchor
-          component={Link}
-          href="/"
-          color="white"
-          sx={{ textDecoration: "none" }}
-        >
-          <Title mb="xl">Share Me</Title>
-        </Anchor>
+        <Nav />
         <Group sx={{ justifyContent: "center" }} align="start">
           <Stack maw="650px" miw="350px" sx={{ flex: 1, flexGrow: 1 }}>
             {userIsAuthor ? (
@@ -200,7 +201,7 @@ export default function Post(props: PostProps) {
                 onChange={(e) => setTitle(e.target.value)}
               />
             ) : (
-              <Text>{post?.title}</Text>
+              post?.title && <Text>{post?.title}</Text>
             )}
             {files.map((f, idx) => (
               <Paper key={f.id} bg="dark.6" p="lg" withBorder>
@@ -374,7 +375,7 @@ export const getServerSideProps: GetServerSideProps<PostProps> = async ({
 
   const { id } = query;
 
-  let record: Post;
+  let record: Post | null = null;
 
   try {
     record = await pb
@@ -386,24 +387,29 @@ export const getServerSideProps: GetServerSideProps<PostProps> = async ({
     if ((ex as any).response.code === 404) {
       return { notFound: true };
     }
+    console.error(ex);
   }
 
-  const images = (record!.expand.files as File[]).filter((f) =>
+  if (!record) {
+    return { notFound: true };
+  }
+
+  const images = (record.expand.files as File[]).filter((f) =>
     IMAGE_MIME_TYPE.includes(f.type as any)
   );
-  const videos = (record!.expand.files as File[]).filter(
+  const videos = (record.expand.files as File[]).filter(
     (f) => !IMAGE_MIME_TYPE.includes(f.type as any)
   );
 
   return {
-    props: {
-      title: record!.title,
-      nsfw: record!.nsfw,
-      isPublic: record!.public,
-      userIsAuthor: pb.authStore.model?.id === record!.author,
-      postAuthorUsername: (record!.expand.author as Record).username,
+    props: pocketBaseUrl({
+      title: record.title,
+      nsfw: record.nsfw,
+      isPublic: record.public,
+      userIsAuthor: pb.authStore.model?.id === record.author,
+      postAuthorUsername: (record.expand.author as Record).username,
       image: images.length ? pb.files.getUrl(images[0], images[0].file) : null,
       video: videos.length ? pb.files.getUrl(videos[0], videos[0].file) : null,
-    },
+    }),
   };
 };

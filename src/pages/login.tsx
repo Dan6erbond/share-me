@@ -1,4 +1,4 @@
-import { usePocketBase } from "@/pocketbase";
+import { pocketBaseUrl, usePocketBase } from "@/pocketbase";
 import {
   Anchor,
   Box,
@@ -11,6 +11,7 @@ import {
   Title,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
+import { GetServerSideProps } from "next";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useState } from "react";
@@ -79,3 +80,9 @@ function Login() {
 }
 
 export default Login;
+
+export const getServerSideProps: GetServerSideProps = async () => {
+  return {
+    props: pocketBaseUrl({}),
+  };
+};

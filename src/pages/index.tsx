@@ -1,18 +1,11 @@
-import { usePocketBase } from "@/pocketbase";
+import Nav from "@/components/nav";
+import { pocketBaseUrl, usePocketBase } from "@/pocketbase";
 import { useAuth } from "@/pocketbase/auth";
-import {
-  Anchor,
-  Box,
-  Group,
-  Text,
-  Title,
-  rem,
-  useMantineTheme,
-} from "@mantine/core";
+import { Box, Group, Text, rem, useMantineTheme } from "@mantine/core";
 import { Dropzone, IMAGE_MIME_TYPE, MIME_TYPES } from "@mantine/dropzone";
 import { IconPhoto, IconUpload, IconX } from "@tabler/icons-react";
+import { GetServerSideProps } from "next";
 import Head from "next/head";
-import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 
@@ -25,7 +18,7 @@ export default function Home() {
   const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
-    if (!user) router.push("/");
+    if (!user) router.push("/login");
   }, [user, router]);
 
   const uploadFiles = async (files: File[]) => {
@@ -63,14 +56,7 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Box component="main" p="lg">
-        <Anchor
-          component={Link}
-          href="/"
-          color="white"
-          sx={{ textDecoration: "none" }}
-        >
-          <Title mb="xl">Share Me</Title>
-        </Anchor>
+        <Nav />
         <Group sx={{ justifyContent: "center" }} align="start">
           <Dropzone
             onDrop={uploadFiles}
@@ -120,3 +106,9 @@ export default function Home() {
     </>
   );
 }
+
+export const getServerSideProps: GetServerSideProps = async () => {
+  return {
+    props: pocketBaseUrl({}),
+  };
+};

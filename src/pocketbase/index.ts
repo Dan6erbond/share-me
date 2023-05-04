@@ -1,8 +1,13 @@
 import { IncomingMessage, ServerResponse } from "http";
 import PocketBase from "pocketbase";
 
-export const initPocketBase = () =>
-  new PocketBase(process.env.NEXT_PUBLIC_POCKETBASE_URL);
+export const initPocketBase = (host?: string) => {
+  return new PocketBase(
+    process.env.NODE_ENV === "development"
+      ? process.env.NEXT_PUBLIC_POCKETBASE_URL
+      : host ?? "/"
+  );
+};
 
 export const initPocketBaseServer = async (
   req?: IncomingMessage & {
@@ -12,7 +17,7 @@ export const initPocketBaseServer = async (
   },
   res?: ServerResponse<IncomingMessage>
 ) => {
-  const pb = initPocketBase();
+  const pb = initPocketBase(process.env.POCKETBASE_URL);
 
   // load the store data from the request cookie string
   pb.authStore.loadFromCookie(req?.headers?.cookie || "");
@@ -32,5 +37,10 @@ export const initPocketBaseServer = async (
 
   return pb;
 };
+
+export const pocketBaseUrl = <T>(props: T): T & { pocketBaseUrl?: string } => ({
+  ...props,
+  pocketBaseUrl: process.env.POCKETBASE_URL,
+});
 
 export * from "./context";
