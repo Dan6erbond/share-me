@@ -26,7 +26,9 @@ import {
 } from "@mantine/core";
 import { Dropzone, IMAGE_MIME_TYPE, MIME_TYPES } from "@mantine/dropzone";
 import { useDebouncedValue } from "@mantine/hooks";
+import { notifications } from "@mantine/notifications";
 import {
+  IconAlertCircle,
   IconClipboardCheck,
   IconClipboardCopy,
   IconPhoto,
@@ -113,8 +115,25 @@ export default function Post(props: PostProps) {
       formData.append("type", file.type);
       formData.append("author", user?.id!);
       formData.append("description", "");
-      const createdRecord = await pb.collection("files").create<File>(formData);
-      records.push(createdRecord);
+      try {
+        const createdRecord = await pb
+          .collection("files")
+          .create<File>(formData);
+        records.push(createdRecord);
+      } catch (ex) {
+        console.error(ex);
+        notifications.show({
+          color: "red",
+          title: "An error occured",
+          message: "Please contact the developers",
+          icon: <IconAlertCircle />,
+        });
+      }
+    }
+
+    if (!records) {
+      setUploading(false);
+      return;
     }
 
     const newFiles = [...files, ...records];

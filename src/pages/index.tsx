@@ -1,9 +1,21 @@
 import Nav from "@/components/nav";
 import { pocketBaseUrl, usePocketBase } from "@/pocketbase";
 import { useAuth } from "@/pocketbase/auth";
+import { File } from "@/pocketbase/models";
 import { Box, Group, Text, rem, useMantineTheme } from "@mantine/core";
-import { Dropzone, IMAGE_MIME_TYPE, MIME_TYPES } from "@mantine/dropzone";
-import { IconPhoto, IconUpload, IconX } from "@tabler/icons-react";
+import {
+  Dropzone,
+  FileWithPath,
+  IMAGE_MIME_TYPE,
+  MIME_TYPES,
+} from "@mantine/dropzone";
+import { notifications } from "@mantine/notifications";
+import {
+  IconAlertCircle,
+  IconPhoto,
+  IconUpload,
+  IconX,
+} from "@tabler/icons-react";
 import { GetServerSideProps } from "next";
 import Head from "next/head";
 import { useRouter } from "next/router";
@@ -21,26 +33,45 @@ export default function Home() {
     if (!user) router.push("/login");
   }, [user, router]);
 
-  const uploadFiles = async (files: File[]) => {
-    const uploads = files.map(async (file) => {
+  const uploadFiles = async (files: FileWithPath[]) => {
+    setUploading(true);
+    const records: File[] = [];
+
+    for (const file of files) {
       const formData = new FormData();
       formData.append("file", file);
       formData.append("name", file.name);
       formData.append("type", file.type);
       formData.append("author", user?.id!);
       formData.append("description", "");
-      const createdRecord = await pb.collection("files").create(formData);
-      return createdRecord;
-    });
-    setUploading(true);
-    const results = await Promise.all(uploads);
-    setUploading(false);
+      try {
+        const createdRecord = await pb
+          .collection("files")
+          .create<File>(formData);
+        records.push(createdRecord);
+      } catch (ex) {
+        console.error(ex);
+        notifications.show({
+          color: "red",
+          title: "An error occured",
+          message: "Please contact the developers",
+          icon: <IconAlertCircle />,
+        });
+      }
+    }
+
+    if (!records) {
+      setUploading(false);
+      return;
+    }
+
     const post = await pb.collection("posts").create({
       title: "",
       author: user?.id!,
-      files: results.map((f) => f.id),
+      files: records.map((f) => f.id),
       public: false,
     });
+    setUploading(false);
     router.push("/posts/" + post.id);
   };
 

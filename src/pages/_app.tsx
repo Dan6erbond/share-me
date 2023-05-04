@@ -1,5 +1,6 @@
 import { initPocketBase, PocketBaseProvider } from "@/pocketbase";
 import { MantineProvider } from "@mantine/core";
+import { Notifications } from "@mantine/notifications";
 import { AppProps } from "next/app";
 import Head from "next/head";
 import PocketBase from "pocketbase";
@@ -26,6 +27,7 @@ export default function App({ Component, pageProps }: AppProps) {
           colorScheme: "dark",
         }}
       >
+        <Notifications />
         <PocketBaseProvider client={pbRef.current}>
           <Component {...pageProps} />
         </PocketBaseProvider>
