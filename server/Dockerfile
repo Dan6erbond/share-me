@@ -1,4 +1,6 @@
-FROM golang:1.18 as builder
+FROM golang:1.19 as builder
+
+ENV CGO_ENABLED=0
 
 WORKDIR /pb
 
@@ -9,7 +11,7 @@ RUN go mod download
 
 COPY ./ ./
 
-RUN go build -o ./pocketbase
+RUN GOOS=linux go build -o /pb/pocketbase
 
 EXPOSE 8080
 
