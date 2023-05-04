@@ -44,13 +44,33 @@ export default function Home() {
       formData.append("type", file.type);
       formData.append("author", user?.id!);
       formData.append("description", "");
+
       try {
         const createdRecord = await pb
           .collection("files")
           .create<File>(formData);
         records.push(createdRecord);
-      } catch (ex) {
+      } catch (ex: any) {
         console.error(ex);
+
+        if (ex.response) {
+          const { data, message } = ex.response;
+          if (message === "Failed to create record.") {
+            if (data.file) {
+              const { code, message } = data.file;
+              if (code === "validation_file_size_limit") {
+                notifications.show({
+                  color: "orange",
+                  title: "File too large",
+                  message: message,
+                  icon: <IconAlertCircle />,
+                });
+                continue;
+              }
+            }
+          }
+        }
+
         notifications.show({
           color: "red",
           title: "An error occured",
@@ -60,7 +80,7 @@ export default function Home() {
       }
     }
 
-    if (!records) {
+    if (records.length === 0) {
       setUploading(false);
       return;
     }
