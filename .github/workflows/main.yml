@@ -22,6 +22,7 @@ jobs:
         id: release
         uses: oknozor/cocogitto-action@v2
         with:
+          check: false
           release: true
           git-user: "Cog Bot"
           git-user-email: "shareme@ravianand.me"
