@@ -15,6 +15,7 @@ import {
   Group,
   Image,
   Loader,
+  MediaQuery,
   Paper,
   Stack,
   Switch,
@@ -25,7 +26,14 @@ import {
 } from "@mantine/core";
 import { Dropzone, IMAGE_MIME_TYPE, MIME_TYPES } from "@mantine/dropzone";
 import { useDebouncedValue } from "@mantine/hooks";
-import { IconPhoto, IconTrash, IconUpload, IconX } from "@tabler/icons-react";
+import {
+  IconClipboardCheck,
+  IconClipboardCopy,
+  IconPhoto,
+  IconTrash,
+  IconUpload,
+  IconX,
+} from "@tabler/icons-react";
 import { FileWithPath } from "file-selector";
 import { GetServerSideProps } from "next";
 import Head from "next/head";
@@ -232,7 +240,7 @@ export default function Post(props: PostProps) {
                       sx={{
                         ":hover": {
                           "> button": {
-                            display: "block",
+                            opacity: 1,
                           },
                         },
                       }}
@@ -254,18 +262,44 @@ export default function Post(props: PostProps) {
                       />
                       <CopyButton value={pb.files.getUrl(f, f.file)}>
                         {({ copy, copied }) => (
-                          <Button
-                            pos="absolute"
-                            top="8px"
-                            right="8px"
-                            size="sm"
-                            radius="md"
-                            variant="gradient"
-                            onClick={copy}
-                            display="none"
-                          >
-                            {copied ? "Copied" : "Copy Link"}
-                          </Button>
+                          <>
+                            <MediaQuery
+                              smallerThan="sm"
+                              styles={{ display: "none" }}
+                            >
+                              <Button
+                                pos="absolute"
+                                top="8px"
+                                right="8px"
+                                size="sm"
+                                radius="md"
+                                variant="gradient"
+                                onClick={copy}
+                                opacity={0}
+                              >
+                                {copied ? "Copied" : "Copy Link"}
+                              </Button>
+                            </MediaQuery>
+                            <MediaQuery
+                              largerThan="sm"
+                              styles={{ display: "none" }}
+                            >
+                              <ActionIcon
+                                pos="absolute"
+                                top="8px"
+                                right="8px"
+                                size="lg"
+                                variant="gradient"
+                                onClick={copy}
+                              >
+                                {copied ? (
+                                  <IconClipboardCheck />
+                                ) : (
+                                  <IconClipboardCopy />
+                                )}
+                              </ActionIcon>
+                            </MediaQuery>
+                          </>
                         )}
                       </CopyButton>
                     </Box>
@@ -297,18 +331,44 @@ export default function Post(props: PostProps) {
                       />
                       <CopyButton value={pb.files.getUrl(f, f.file)}>
                         {({ copy, copied }) => (
-                          <Button
-                            pos="absolute"
-                            top="8px"
-                            right="8px"
-                            size="sm"
-                            radius="md"
-                            variant="gradient"
-                            onClick={copy}
-                            display="none"
-                          >
-                            {copied ? "Copied" : "Copy Link"}
-                          </Button>
+                          <>
+                            <MediaQuery
+                              smallerThan="sm"
+                              styles={{ display: "none" }}
+                            >
+                              <Button
+                                pos="absolute"
+                                top="8px"
+                                right="8px"
+                                size="sm"
+                                radius="md"
+                                variant="gradient"
+                                onClick={copy}
+                                opacity={0}
+                              >
+                                {copied ? "Copied" : "Copy Link"}
+                              </Button>
+                            </MediaQuery>
+                            <MediaQuery
+                              largerThan="sm"
+                              styles={{ display: "none" }}
+                            >
+                              <ActionIcon
+                                pos="absolute"
+                                top="8px"
+                                right="8px"
+                                size="lg"
+                                variant="gradient"
+                                onClick={copy}
+                              >
+                                {copied ? (
+                                  <IconClipboardCheck />
+                                ) : (
+                                  <IconClipboardCopy />
+                                )}
+                              </ActionIcon>
+                            </MediaQuery>
+                          </>
                         )}
                       </CopyButton>
                     </Box>
