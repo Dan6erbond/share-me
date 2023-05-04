@@ -13,8 +13,15 @@ COPY ./ ./
 
 RUN GOOS=linux go build -o /pb/pocketbase
 
-EXPOSE 8080
+FROM alpine
 
+WORKDIR /pb
+
+COPY --from=builder /pb/pocketbase ./pocketbase
+
+COPY ./entrypoint.sh ./entrypoint.sh
 RUN chmod +x entrypoint.sh
+
+EXPOSE 8080
 
 CMD [ "./entrypoint.sh" ]
