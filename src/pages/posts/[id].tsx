@@ -1,6 +1,7 @@
 import Dropzone from "@/components/dropzone";
 import Head from "@/components/head";
 import Nav from "@/components/nav";
+import { useUploadFiles } from "@/hooks/useUploadFiles";
 import {
   initPocketBaseServer,
   pocketBaseUrl,
@@ -8,7 +9,6 @@ import {
 } from "@/pocketbase";
 import { useAuth } from "@/pocketbase/auth";
 import { File, Post } from "@/pocketbase/models";
-import { uploadFile } from "@/pocketbase/uploadFile";
 import {
   ActionIcon,
   Box,
@@ -27,9 +27,7 @@ import {
 } from "@mantine/core";
 import { IMAGE_MIME_TYPE } from "@mantine/dropzone";
 import { useDebouncedValue } from "@mantine/hooks";
-import { notifications } from "@mantine/notifications";
 import {
-  IconAlertCircle,
   IconClipboardCheck,
   IconClipboardCopy,
   IconTrash,
@@ -39,7 +37,6 @@ import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
 import { Record } from "pocketbase";
 import { useCallback, useEffect, useState } from "react";
-import { useUploadFiles } from "@/hooks/useUploadFiles";
 
 interface PostProps {
   title: string;

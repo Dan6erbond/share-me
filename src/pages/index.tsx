@@ -1,6 +1,7 @@
 import Dropzone from "@/components/dropzone";
 import Head from "@/components/head";
 import Nav from "@/components/nav";
+import { useUploadFiles } from "@/hooks/useUploadFiles";
 import { pocketBaseUrl, usePocketBase } from "@/pocketbase";
 import { useAuth } from "@/pocketbase/auth";
 import { Box, Group } from "@mantine/core";
@@ -8,7 +9,6 @@ import { FileWithPath } from "@mantine/dropzone";
 import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
-import { useUploadFiles } from "@/hooks/useUploadFiles";
 
 export default function Home() {
   const router = useRouter();
