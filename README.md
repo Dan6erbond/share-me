@@ -6,7 +6,7 @@
 
 A selfhosted image and video uploading platform that uses Next.js and PocketBase. An open-source alternative to Imgur.
 
-![Screenshot](./assets/screenshots/Screenshot 2023-05-05 223124.png)
+![Screenshot](./assets/screenshots/post.png)
 
 ## Features
 
