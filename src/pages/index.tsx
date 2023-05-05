@@ -1,4 +1,5 @@
 import Dropzone from "@/components/dropzone";
+import Head from "@/components/head";
 import Nav from "@/components/nav";
 import { pocketBaseUrl, usePocketBase } from "@/pocketbase";
 import { useAuth } from "@/pocketbase/auth";
@@ -9,7 +10,6 @@ import { FileWithPath } from "@mantine/dropzone";
 import { notifications } from "@mantine/notifications";
 import { IconAlertCircle } from "@tabler/icons-react";
 import { GetServerSideProps } from "next";
-import Head from "@/components/head";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 
@@ -26,9 +26,8 @@ export default function Home() {
 
   const uploadFiles = async (files: FileWithPath[]) => {
     setUploading(true);
-    const records: File[] = [];
 
-    for (const file of files) {
+    const promises = files.map(async (file) => {
       try {
         const createdRecord = await uploadFile(pb, {
           file: file,
@@ -36,7 +35,7 @@ export default function Home() {
           author: user?.id!,
           description: "",
         });
-        records.push(createdRecord);
+        return createdRecord;
       } catch (ex) {
         console.error(ex);
         notifications.show({
@@ -46,7 +45,11 @@ export default function Home() {
           icon: <IconAlertCircle />,
         });
       }
-    }
+    });
+
+    const records = (await Promise.all(promises)).filter(
+      (r) => r !== undefined
+    ) as File[];
 
     if (!records) {
       setUploading(false);

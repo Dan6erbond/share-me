@@ -101,9 +101,8 @@ export default function Post(props: PostProps) {
 
   const uploadFiles = async (f: FileWithPath[]) => {
     setUploading(true);
-    const records: File[] = [];
 
-    for (const file of f) {
+    const promises = f.map(async (file) => {
       try {
         const createdRecord = await uploadFile(pb, {
           file: file,
@@ -111,7 +110,7 @@ export default function Post(props: PostProps) {
           author: user?.id!,
           description: "",
         });
-        records.push(createdRecord);
+        return createdRecord;
       } catch (ex) {
         console.error(ex);
         notifications.show({
@@ -121,7 +120,11 @@ export default function Post(props: PostProps) {
           icon: <IconAlertCircle />,
         });
       }
-    }
+    });
+
+    const records = (await Promise.all(promises)).filter(
+      (r) => r !== undefined
+    ) as File[];
 
     if (!records) {
       setUploading(false);
