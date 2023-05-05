@@ -24,7 +24,6 @@ import {
   Switch,
   Text,
   TextInput,
-  useMantineTheme,
 } from "@mantine/core";
 import { IMAGE_MIME_TYPE } from "@mantine/dropzone";
 import { useDebouncedValue } from "@mantine/hooks";
@@ -56,7 +55,6 @@ export default function Post(props: PostProps) {
   const { id } = router.query;
   const pb = usePocketBase();
   const { user } = useAuth();
-  const theme = useMantineTheme();
 
   const [post, setPost] = useState<Post | null>();
   const [userIsAuthor, setUserIsAuthor] = useState(props.userIsAuthor);
@@ -67,7 +65,6 @@ export default function Post(props: PostProps) {
 
   const [blurred, setBlurred] = useState<boolean[]>([]);
   const [uploading, setUploading] = useState(false);
-  const [uploads, setUploads] = useState([]);
 
   const [debouncedTitle] = useDebouncedValue(title, 200, { leading: true });
 
