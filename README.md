@@ -111,7 +111,5 @@ This project is licensed under [MIT](./LICENSE).
 ## Support
 
 <div style="display: flex; justify-content: center">
-
-[![Buy Me a Coffee](https://cdn.buymeacoffee.com/buttons/default-orange.png)](https://bmc.link/dan6erbond)
-
+  <a href="https://www.buymeacoffee.com/dan6erbond"><img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=dan6erbond&button_colour=5F7FFF&font_colour=ffffff&font_family=Lato&outline_colour=000000&coffee_colour=FFDD00" /></a>
 </div>
