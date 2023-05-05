@@ -1,4 +1,5 @@
 import Dropzone from "@/components/dropzone";
+import Head from "@/components/head";
 import Nav from "@/components/nav";
 import {
   initPocketBaseServer,
@@ -36,7 +37,6 @@ import {
 } from "@tabler/icons-react";
 import { FileWithPath } from "file-selector";
 import { GetServerSideProps } from "next";
-import Head from "next/head";
 import { useRouter } from "next/router";
 import { Record } from "pocketbase";
 import { useCallback, useEffect, useState } from "react";
@@ -185,31 +185,20 @@ export default function Post(props: PostProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [post, debouncedTitle, isPublic, nsfw]);
 
-  const siteTitle = post?.title || `Post by ${props.postAuthorUsername}`;
+  const postTitle = post?.title || `Post by ${props.postAuthorUsername}`;
+  const description = `Shared by ${props.postAuthorUsername}`;
 
   return (
     <>
-      <Head>
-        <title>{siteTitle} | Share Me</title>
-        <meta property="og:title" content={`${siteTitle} | Share Me`} />
-        <meta
-          name="description"
-          content={`Shared by ${props.postAuthorUsername}`}
-        />
-        <meta property="og:url" content="" />
-        <meta property="og:type" content="article" />
-        {props.image && <meta property="og:image" content={props.image} />}
-        {props.video && <meta property="og:video" content={props.video} />}
-        <meta property="twitter:card" content="summary_large_image" />
-        <meta property="twitter:title" content={`${siteTitle} | Share Me`} />
-        <meta
-          property="twitter:description"
-          content={`Shared by ${props.postAuthorUsername}`}
-        />
-        {props.image && <meta property="twitter:image" content={props.image} />}
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+      <Head
+        pageTitle={postTitle}
+        description={description}
+        image={props.image}
+        video={props.video}
+        ogType="post"
+        twitterCard="summary_large_image"
+      />
+
       <Box component="main" p="lg">
         <Nav />
         <Group sx={{ justifyContent: "center" }} align="start">
@@ -248,16 +237,16 @@ export default function Post(props: PostProps) {
                       </ActionIcon>
                     )}
                   </Group>
-                    <Box
-                      pos="relative"
-                      sx={{
-                        ":hover": {
-                          "> button": {
-                            opacity: 1,
-                          },
+                  <Box
+                    pos="relative"
+                    sx={{
+                      ":hover": {
+                        "> button": {
+                          opacity: 1,
                         },
-                      }}
-                    >
+                      },
+                    }}
+                  >
                     {IMAGE_MIME_TYPE.includes(f.type as any) ? (
                       <Image
                         src={pb.files.getUrl(f, f.file)}
@@ -274,7 +263,7 @@ export default function Post(props: PostProps) {
                           )
                         }
                       />
-                  ) : (
+                    ) : (
                       <video
                         src={pb.files.getUrl(f, f.file)}
                         controls
@@ -291,49 +280,49 @@ export default function Post(props: PostProps) {
                         }
                       />
                     )}
-                      <CopyButton value={pb.files.getUrl(f, f.file)}>
-                        {({ copy, copied }) => (
-                          <>
-                            <MediaQuery
-                              smallerThan="sm"
-                              styles={{ display: "none" }}
+                    <CopyButton value={pb.files.getUrl(f, f.file)}>
+                      {({ copy, copied }) => (
+                        <>
+                          <MediaQuery
+                            smallerThan="sm"
+                            styles={{ display: "none" }}
+                          >
+                            <Button
+                              pos="absolute"
+                              top="8px"
+                              right="8px"
+                              size="sm"
+                              radius="md"
+                              variant="gradient"
+                              onClick={copy}
+                              opacity={0}
                             >
-                              <Button
-                                pos="absolute"
-                                top="8px"
-                                right="8px"
-                                size="sm"
-                                radius="md"
-                                variant="gradient"
-                                onClick={copy}
-                                opacity={0}
-                              >
-                                {copied ? "Copied" : "Copy Link"}
-                              </Button>
-                            </MediaQuery>
-                            <MediaQuery
-                              largerThan="sm"
-                              styles={{ display: "none" }}
+                              {copied ? "Copied" : "Copy Link"}
+                            </Button>
+                          </MediaQuery>
+                          <MediaQuery
+                            largerThan="sm"
+                            styles={{ display: "none" }}
+                          >
+                            <ActionIcon
+                              pos="absolute"
+                              top="8px"
+                              right="8px"
+                              size="lg"
+                              variant="gradient"
+                              onClick={copy}
                             >
-                              <ActionIcon
-                                pos="absolute"
-                                top="8px"
-                                right="8px"
-                                size="lg"
-                                variant="gradient"
-                                onClick={copy}
-                              >
-                                {copied ? (
-                                  <IconClipboardCheck />
-                                ) : (
-                                  <IconClipboardCopy />
-                                )}
-                              </ActionIcon>
-                            </MediaQuery>
-                          </>
-                        )}
-                      </CopyButton>
-                    </Box>
+                              {copied ? (
+                                <IconClipboardCheck />
+                              ) : (
+                                <IconClipboardCopy />
+                              )}
+                            </ActionIcon>
+                          </MediaQuery>
+                        </>
+                      )}
+                    </CopyButton>
+                  </Box>
                   {userIsAuthor ? (
                     <TextInput
                       placeholder="Description"

@@ -15,6 +15,7 @@ import { GetServerSideProps } from "next";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
+import Head from "@/components/head";
 
 interface SignUpForm {
   email: string;
@@ -70,47 +71,50 @@ function SignUp() {
   };
 
   return (
-    <Box>
-      <Group position="center" h="100vh">
-        <form onSubmit={form.onSubmit(signUp)}>
-          <Stack>
-            <Title>Share Me</Title>
-            <Title order={3} color="gray.5">
-              Sign Up
-            </Title>
-            <TextInput
-              label="Email"
-              {...form.getInputProps("email")}
-              miw="300px"
-              type="email"
-            />
-            <TextInput
-              label="Username"
-              {...form.getInputProps("username")}
-              miw="300px"
-            />
-            <PasswordInput
-              label="Password"
-              {...form.getInputProps("password")}
-              miw="300px"
-            />
-            <PasswordInput
-              label="Repeat password"
-              {...form.getInputProps("passwordConfirm")}
-              miw="300px"
-            />
-            <Group sx={{ justifyContent: "space-between" }}>
-              <Anchor component={Link} href="/login">
-                Log In
-              </Anchor>
-              <Button variant="gradient" type="submit">
+    <>
+      <Head pageTitle="Sign Up" />
+      <Box>
+        <Group position="center" h="100vh">
+          <form onSubmit={form.onSubmit(signUp)}>
+            <Stack>
+              <Title>Share Me</Title>
+              <Title order={3} color="gray.5">
                 Sign Up
-              </Button>
-            </Group>
-          </Stack>
-        </form>
-      </Group>
-    </Box>
+              </Title>
+              <TextInput
+                label="Email"
+                {...form.getInputProps("email")}
+                miw="300px"
+                type="email"
+              />
+              <TextInput
+                label="Username"
+                {...form.getInputProps("username")}
+                miw="300px"
+              />
+              <PasswordInput
+                label="Password"
+                {...form.getInputProps("password")}
+                miw="300px"
+              />
+              <PasswordInput
+                label="Repeat password"
+                {...form.getInputProps("passwordConfirm")}
+                miw="300px"
+              />
+              <Group sx={{ justifyContent: "space-between" }}>
+                <Anchor component={Link} href="/login">
+                  Log In
+                </Anchor>
+                <Button variant="gradient" type="submit">
+                  Sign Up
+                </Button>
+              </Group>
+            </Stack>
+          </form>
+        </Group>
+      </Box>
+    </>
   );
 }
 

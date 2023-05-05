@@ -9,7 +9,7 @@ import { FileWithPath } from "@mantine/dropzone";
 import { notifications } from "@mantine/notifications";
 import { IconAlertCircle } from "@tabler/icons-react";
 import { GetServerSideProps } from "next";
-import Head from "next/head";
+import Head from "@/components/head";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 
@@ -65,15 +65,7 @@ export default function Home() {
 
   return (
     <>
-      <Head>
-        <title>Share Me</title>
-        <meta
-          name="description"
-          content="Easily share images and videos with others"
-        />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+      <Head pageTitle="Upload" />
       <Box component="main" p="lg">
         <Nav />
         <Group sx={{ justifyContent: "center" }} align="start">
