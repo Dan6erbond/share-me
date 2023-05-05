@@ -1,4 +1,5 @@
 import { initPocketBase, PocketBaseProvider } from "@/pocketbase";
+import { UploaderContextProvider } from "@/uploader/context";
 import { MantineProvider } from "@mantine/core";
 import { Notifications } from "@mantine/notifications";
 import { AppProps } from "next/app";
@@ -29,7 +30,9 @@ export default function App({ Component, pageProps }: AppProps) {
       >
         <Notifications />
         <PocketBaseProvider client={pbRef.current}>
-          <Component {...pageProps} />
+          <UploaderContextProvider pocketBase={pbRef.current}>
+            <Component {...pageProps} />
+          </UploaderContextProvider>
         </PocketBaseProvider>
       </MantineProvider>
     </>

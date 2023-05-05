@@ -1,6 +1,7 @@
 import Dropzone from "@/components/dropzone";
 import Head from "@/components/head";
 import Nav from "@/components/nav";
+import { useUploadFiles } from "@/hooks/useUploadFiles";
 import {
   initPocketBaseServer,
   pocketBaseUrl,
@@ -8,7 +9,6 @@ import {
 } from "@/pocketbase";
 import { useAuth } from "@/pocketbase/auth";
 import { File, Post } from "@/pocketbase/models";
-import { uploadFile } from "@/pocketbase/uploadFile";
 import {
   ActionIcon,
   Box,
@@ -27,9 +27,7 @@ import {
 } from "@mantine/core";
 import { IMAGE_MIME_TYPE } from "@mantine/dropzone";
 import { useDebouncedValue } from "@mantine/hooks";
-import { notifications } from "@mantine/notifications";
 import {
-  IconAlertCircle,
   IconClipboardCheck,
   IconClipboardCopy,
   IconTrash,
@@ -64,13 +62,35 @@ export default function Post(props: PostProps) {
   const [nsfw, setNsfw] = useState(props.nsfw);
 
   const [blurred, setBlurred] = useState<boolean[]>([]);
-  const [uploading, setUploading] = useState(false);
 
   const [debouncedTitle] = useDebouncedValue(title, 200, { leading: true });
 
+  const { uploading, uploadFiles: _uploadFiles } = useUploadFiles();
+
+  const uploadFiles = (f: FileWithPath[]) =>
+    _uploadFiles(
+      f.map((file) => ({
+        file: file,
+        name: file.name,
+        author: user?.id!,
+        description: "",
+      }))
+    ).then(async (records) => {
+      if (records.length === 0) {
+        return;
+      }
+
+      const newFiles = [...files, ...records];
+      setFiles(newFiles);
+      const record = await pb
+        .collection("posts")
+        .update<Post>(post!.id, { files: newFiles.map((f) => f.id) });
+      setValues(record);
+    });
+
   useEffect(() => {
-    blurred.length !== files.length && setBlurred(files.map(() => nsfw));
-  }, [blurred, nsfw, setBlurred, files]);
+    setBlurred(files.map(() => nsfw));
+  }, [nsfw, setBlurred, files]);
 
   const setValues = useCallback(
     (record: Post) => {
@@ -98,63 +118,6 @@ export default function Post(props: PostProps) {
   useEffect(() => {
     id && fetchPost();
   }, [id, fetchPost]);
-
-  const uploadFiles = async (f: FileWithPath[]) => {
-    setUploading(true);
-    const records: File[] = [];
-
-    for (const file of f) {
-      try {
-        const createdRecord = await uploadFile(pb, {
-          file: file,
-          name: file.name,
-          author: user?.id!,
-          description: "",
-        });
-        records.push(createdRecord);
-      } catch (ex: any) {
-        console.error(ex);
-
-        if (ex.response) {
-          const { data, message } = ex.response;
-          if (message === "Failed to create record.") {
-            if (data.file) {
-              const { code, message } = data.file;
-              if (code === "validation_file_size_limit") {
-                notifications.show({
-                  color: "orange",
-                  title: "File too large",
-                  message: message,
-                  icon: <IconAlertCircle />,
-                });
-                continue;
-              }
-            }
-          }
-        }
-
-        notifications.show({
-          color: "red",
-          title: "An error occured",
-          message: "Please contact the developers",
-          icon: <IconAlertCircle />,
-        });
-      }
-    }
-
-    if (records.length === 0) {
-      setUploading(false);
-      return;
-    }
-
-    const newFiles = [...files, ...records];
-    setFiles(newFiles);
-    const record = await pb
-      .collection("posts")
-      .update<Post>(post!.id, { files: newFiles.map((f) => f.id) });
-    setValues(record);
-    setUploading(false);
-  };
 
   const deleteFile = async (id: string) => {
     const record = await pb.collection("posts").update<Post>(post!.id, {
@@ -231,7 +194,12 @@ export default function Post(props: PostProps) {
               post?.title && <Text>{post?.title}</Text>
             )}
             {files.map((f, idx) => (
-              <Paper key={f.id} bg="dark.6" p="lg" withBorder>
+              <Paper
+                key={f.id}
+                bg="dark.6"
+                p={{ base: "lg", md: "2rem" }}
+                withBorder
+              >
                 <Stack>
                   <Group sx={{ justifyContent: "space-between" }}>
                     {userIsAuthor ? (
@@ -261,6 +229,7 @@ export default function Post(props: PostProps) {
                           opacity: 1,
                         },
                       },
+                      overflow: "hidden",
                     }}
                   >
                     {IMAGE_MIME_TYPE.includes(f.type as any) ? (
@@ -270,7 +239,6 @@ export default function Post(props: PostProps) {
                         maw="100%"
                         sx={{
                           filter: blurred[idx] ? "blur(10px)" : "",
-                          overflow: "hidden",
                         }}
                         onClick={() =>
                           nsfw &&
