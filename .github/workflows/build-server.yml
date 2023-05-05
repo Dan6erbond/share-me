@@ -9,7 +9,7 @@ defaults:
     working-directory: server
 
 jobs:
-  lint-and-build-app:
+  build-pocketbase:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
