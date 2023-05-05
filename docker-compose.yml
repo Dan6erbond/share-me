@@ -1,0 +1,15 @@
+version: "3.8"
+
+services:
+  server:
+    image: ghcr.io/dan6erbond/share-me-server:0.6.0
+    volumes:
+      - ./pb_data:/pb/pb_data
+    ports:
+      - 8080:8080
+  frontend:
+    image: ghcr.io/dan6erbond/share-me-frontend:0.6.0
+    environment:
+      POCKETBASE_URL: https://shareme.example.com
+    ports:
+      - 3000:3000
