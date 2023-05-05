@@ -77,6 +77,7 @@ spec:
             path: /_/
             pathType: Prefix
 ```
+
 </details>
 
 ## Configuration
@@ -106,3 +107,11 @@ To disable username/password and email/password login if you only want to allow 
 ## License
 
 This project is licensed under [MIT](./LICENSE).
+
+## Support
+
+<div style="display: flex; justify-content: center">
+
+[![Buy Me a Coffee](https://cdn.buymeacoffee.com/buttons/default-orange.png)](https://bmc.link/dan6erbond)
+
+</div>
