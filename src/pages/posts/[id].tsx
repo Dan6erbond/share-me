@@ -69,8 +69,8 @@ export default function Post(props: PostProps) {
   const [debouncedTitle] = useDebouncedValue(title, 200, { leading: true });
 
   useEffect(() => {
-    blurred.length !== files.length && setBlurred(files.map(() => nsfw));
-  }, [blurred, nsfw, setBlurred, files]);
+    setBlurred(files.map(() => nsfw));
+  }, [nsfw, setBlurred, files]);
 
   const setValues = useCallback(
     (record: Post) => {
@@ -215,7 +215,12 @@ export default function Post(props: PostProps) {
               post?.title && <Text>{post?.title}</Text>
             )}
             {files.map((f, idx) => (
-              <Paper key={f.id} bg="dark.6" p="lg" withBorder>
+              <Paper
+                key={f.id}
+                bg="dark.6"
+                p={{ base: "lg", md: "2rem" }}
+                withBorder
+              >
                 <Stack>
                   <Group sx={{ justifyContent: "space-between" }}>
                     {userIsAuthor ? (
@@ -245,6 +250,7 @@ export default function Post(props: PostProps) {
                           opacity: 1,
                         },
                       },
+                      overflow: "hidden",
                     }}
                   >
                     {IMAGE_MIME_TYPE.includes(f.type as any) ? (
@@ -254,7 +260,6 @@ export default function Post(props: PostProps) {
                         maw="100%"
                         sx={{
                           filter: blurred[idx] ? "blur(10px)" : "",
-                          overflow: "hidden",
                         }}
                         onClick={() =>
                           nsfw &&
