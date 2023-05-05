@@ -3,6 +3,7 @@ import Nav from "@/components/nav";
 import { pocketBaseUrl, usePocketBase } from "@/pocketbase";
 import { useAuth } from "@/pocketbase/auth";
 import { File } from "@/pocketbase/models";
+import { uploadFile } from "@/pocketbase/uploadFile";
 import { Box, Group } from "@mantine/core";
 import { FileWithPath } from "@mantine/dropzone";
 import { notifications } from "@mantine/notifications";
@@ -28,16 +29,13 @@ export default function Home() {
     const records: File[] = [];
 
     for (const file of files) {
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("name", file.name);
-      formData.append("type", file.type);
-      formData.append("author", user?.id!);
-      formData.append("description", "");
       try {
-        const createdRecord = await pb
-          .collection("files")
-          .create<File>(formData);
+        const createdRecord = await uploadFile(pb, {
+          file: file,
+          name: file.name,
+          author: user?.id!,
+          description: "",
+        });
         records.push(createdRecord);
       } catch (ex) {
         console.error(ex);
