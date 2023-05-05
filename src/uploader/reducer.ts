@@ -1,16 +1,15 @@
 import { Post, File as ShareMeFile } from "@/pocketbase/models";
 import axios from "axios";
 import PocketBase from "pocketbase";
-import React, { useReducer } from "react";
 
-interface NewFile {
+export interface NewFile {
   file: File;
   name: string;
   author: string;
   description: string;
 }
 
-interface Upload {
+export interface Upload {
   file: File;
   post: Post;
   progress: number;
@@ -33,7 +32,7 @@ type UploaderAction =
   | { type: "UPDATE_PROGRESS"; upload: Upload; progress?: number }
   | { type: "FINISH_UPLOAD"; upload: Upload };
 
-const uploaderReducer = (
+export const uploaderReducer = (
   state: UploaderState,
   action: UploaderAction
 ): UploaderState => {
@@ -82,61 +81,4 @@ const uploaderReducer = (
         ),
       };
   }
-};
-
-interface Uploader {
-  uploadFile: (
-    file: NewFile,
-    post: Post,
-    onCompleted: (file: ShareMeFile) => void,
-    onError: (exception: any) => void
-  ) => Promise<void>;
-  uploads: Upload[];
-}
-
-const UploaderContext = React.createContext<Uploader | null>(null);
-
-interface UploaderContextProviderProps {
-  children?: React.ReactNode;
-  pocketBase: PocketBase;
-}
-
-export const UploaderContextProvider = ({
-  children,
-  pocketBase,
-}: UploaderContextProviderProps) => {
-  const [state, dispatch] = useReducer(uploaderReducer, {
-    pocketBase,
-    uploads: [],
-    onUploadProgress: (upload: Upload, progress?: number) => {
-      dispatch({ type: "UPDATE_PROGRESS", upload, progress });
-    },
-  });
-
-  const uploadFile = async (
-    file: NewFile,
-    post: Post,
-    onCompleted: (file: ShareMeFile) => void,
-    onError: (exception: any) => void
-  ) => {
-    dispatch({
-      type: "ADD_UPLOAD",
-      file,
-      post,
-      onCompleted: (upload: Upload, file: ShareMeFile) => {
-        dispatch({
-          type: "FINISH_UPLOAD",
-          upload,
-        });
-        onCompleted(file);
-      },
-      onError,
-    });
-  };
-
-  return (
-    <UploaderContext.Provider value={{ uploadFile, uploads: state.uploads }}>
-      {children}
-    </UploaderContext.Provider>
-  );
 };
