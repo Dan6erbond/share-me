@@ -6,7 +6,7 @@ export const useAuthMethods = () => {
   const pb = usePocketBase();
 
   const [usernamePasswordEnabled, setUsernamePasswordEnabled] = useState(true);
-  const [authProviders, setAuthProviders] = useState<AuthProviderInfo[]>();
+  const [authProviders, setAuthProviders] = useState<AuthProviderInfo[]>([]);
 
   useEffect(() => {
     (async () => {
