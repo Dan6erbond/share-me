@@ -111,7 +111,7 @@ export default function Post(props: PostProps) {
           description: "",
         });
         return createdRecord;
-      } catch (ex) {
+      } catch (ex: any) {
         console.error(ex);
 
         if (ex.response) {
@@ -126,8 +126,8 @@ export default function Post(props: PostProps) {
                   message: message,
                   icon: <IconAlertCircle />,
                 });
-                continue;
               }
+              return;
             }
           }
         }

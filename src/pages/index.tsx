@@ -36,7 +36,7 @@ export default function Home() {
           description: "",
         });
         return createdRecord;
-      } catch (ex) {
+      } catch (ex: any) {
         console.error(ex);
 
         if (ex.response) {
@@ -51,7 +51,7 @@ export default function Home() {
                   message: message,
                   icon: <IconAlertCircle />,
                 });
-                continue;
+                return;
               }
             }
           }
