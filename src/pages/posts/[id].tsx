@@ -1,3 +1,5 @@
+import Dropzone from "@/components/dropzone";
+import Head from "@/components/head";
 import Nav from "@/components/nav";
 import {
   initPocketBaseServer,
@@ -6,6 +8,7 @@ import {
 } from "@/pocketbase";
 import { useAuth } from "@/pocketbase/auth";
 import { File, Post } from "@/pocketbase/models";
+import { uploadFile } from "@/pocketbase/uploadFile";
 import {
   ActionIcon,
   Box,
@@ -21,24 +24,18 @@ import {
   Switch,
   Text,
   TextInput,
-  rem,
-  useMantineTheme,
 } from "@mantine/core";
-import { Dropzone, IMAGE_MIME_TYPE, MIME_TYPES } from "@mantine/dropzone";
+import { IMAGE_MIME_TYPE } from "@mantine/dropzone";
 import { useDebouncedValue } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
 import {
   IconAlertCircle,
   IconClipboardCheck,
   IconClipboardCopy,
-  IconPhoto,
   IconTrash,
-  IconUpload,
-  IconX,
 } from "@tabler/icons-react";
 import { FileWithPath } from "file-selector";
 import { GetServerSideProps } from "next";
-import Head from "next/head";
 import { useRouter } from "next/router";
 import { Record } from "pocketbase";
 import { useCallback, useEffect, useState } from "react";
@@ -58,7 +55,6 @@ export default function Post(props: PostProps) {
   const { id } = router.query;
   const pb = usePocketBase();
   const { user } = useAuth();
-  const theme = useMantineTheme();
 
   const [post, setPost] = useState<Post | null>();
   const [userIsAuthor, setUserIsAuthor] = useState(props.userIsAuthor);
@@ -69,7 +65,6 @@ export default function Post(props: PostProps) {
 
   const [blurred, setBlurred] = useState<boolean[]>([]);
   const [uploading, setUploading] = useState(false);
-  const [uploads, setUploads] = useState([]);
 
   const [debouncedTitle] = useDebouncedValue(title, 200, { leading: true });
 
@@ -109,17 +104,13 @@ export default function Post(props: PostProps) {
     const records: File[] = [];
 
     for (const file of f) {
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("name", file.name);
-      formData.append("type", file.type);
-      formData.append("author", user?.id!);
-      formData.append("description", "");
-
       try {
-        const createdRecord = await pb
-          .collection("files")
-          .create<File>(formData);
+        const createdRecord = await uploadFile(pb, {
+          file: file,
+          name: file.name,
+          author: user?.id!,
+          description: "",
+        });
         records.push(createdRecord);
       } catch (ex: any) {
         console.error(ex);
@@ -210,31 +201,20 @@ export default function Post(props: PostProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [post, debouncedTitle, isPublic, nsfw]);
 
-  const siteTitle = post?.title || `Post by ${props.postAuthorUsername}`;
+  const postTitle = post?.title || `Post by ${props.postAuthorUsername}`;
+  const description = `Shared by ${props.postAuthorUsername}`;
 
   return (
     <>
-      <Head>
-        <title>{siteTitle} | Share Me</title>
-        <meta property="og:title" content={`${siteTitle} | Share Me`} />
-        <meta
-          name="description"
-          content={`Shared by ${props.postAuthorUsername}`}
-        />
-        <meta property="og:url" content="" />
-        <meta property="og:type" content="article" />
-        {props.image && <meta property="og:image" content={props.image} />}
-        {props.video && <meta property="og:video" content={props.video} />}
-        <meta property="twitter:card" content="summary_large_image" />
-        <meta property="twitter:title" content={`${siteTitle} | Share Me`} />
-        <meta
-          property="twitter:description"
-          content={`Shared by ${props.postAuthorUsername}`}
-        />
-        {props.image && <meta property="twitter:image" content={props.image} />}
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+      <Head
+        pageTitle={postTitle}
+        description={description}
+        image={props.image}
+        video={props.video}
+        ogType="post"
+        twitterCard="summary_large_image"
+      />
+
       <Box component="main" p="lg">
         <Nav />
         <Group sx={{ justifyContent: "center" }} align="start">
@@ -273,17 +253,17 @@ export default function Post(props: PostProps) {
                       </ActionIcon>
                     )}
                   </Group>
-                  {IMAGE_MIME_TYPE.includes(f.type as any) ? (
-                    <Box
-                      pos="relative"
-                      sx={{
-                        ":hover": {
-                          "> button": {
-                            opacity: 1,
-                          },
+                  <Box
+                    pos="relative"
+                    sx={{
+                      ":hover": {
+                        "> button": {
+                          opacity: 1,
                         },
-                      }}
-                    >
+                      },
+                    }}
+                  >
+                    {IMAGE_MIME_TYPE.includes(f.type as any) ? (
                       <Image
                         src={pb.files.getUrl(f, f.file)}
                         alt=""
@@ -299,60 +279,7 @@ export default function Post(props: PostProps) {
                           )
                         }
                       />
-                      <CopyButton value={pb.files.getUrl(f, f.file)}>
-                        {({ copy, copied }) => (
-                          <>
-                            <MediaQuery
-                              smallerThan="sm"
-                              styles={{ display: "none" }}
-                            >
-                              <Button
-                                pos="absolute"
-                                top="8px"
-                                right="8px"
-                                size="sm"
-                                radius="md"
-                                variant="gradient"
-                                onClick={copy}
-                                opacity={0}
-                              >
-                                {copied ? "Copied" : "Copy Link"}
-                              </Button>
-                            </MediaQuery>
-                            <MediaQuery
-                              largerThan="sm"
-                              styles={{ display: "none" }}
-                            >
-                              <ActionIcon
-                                pos="absolute"
-                                top="8px"
-                                right="8px"
-                                size="lg"
-                                variant="gradient"
-                                onClick={copy}
-                              >
-                                {copied ? (
-                                  <IconClipboardCheck />
-                                ) : (
-                                  <IconClipboardCopy />
-                                )}
-                              </ActionIcon>
-                            </MediaQuery>
-                          </>
-                        )}
-                      </CopyButton>
-                    </Box>
-                  ) : (
-                    <Box
-                      pos="relative"
-                      sx={{
-                        ":hover": {
-                          "> button": {
-                            display: "block",
-                          },
-                        },
-                      }}
-                    >
+                    ) : (
                       <video
                         src={pb.files.getUrl(f, f.file)}
                         controls
@@ -368,50 +295,50 @@ export default function Post(props: PostProps) {
                           )
                         }
                       />
-                      <CopyButton value={pb.files.getUrl(f, f.file)}>
-                        {({ copy, copied }) => (
-                          <>
-                            <MediaQuery
-                              smallerThan="sm"
-                              styles={{ display: "none" }}
+                    )}
+                    <CopyButton value={pb.files.getUrl(f, f.file)}>
+                      {({ copy, copied }) => (
+                        <>
+                          <MediaQuery
+                            smallerThan="sm"
+                            styles={{ display: "none" }}
+                          >
+                            <Button
+                              pos="absolute"
+                              top="8px"
+                              right="8px"
+                              size="sm"
+                              radius="md"
+                              variant="gradient"
+                              onClick={copy}
+                              opacity={0}
                             >
-                              <Button
-                                pos="absolute"
-                                top="8px"
-                                right="8px"
-                                size="sm"
-                                radius="md"
-                                variant="gradient"
-                                onClick={copy}
-                                opacity={0}
-                              >
-                                {copied ? "Copied" : "Copy Link"}
-                              </Button>
-                            </MediaQuery>
-                            <MediaQuery
-                              largerThan="sm"
-                              styles={{ display: "none" }}
+                              {copied ? "Copied" : "Copy Link"}
+                            </Button>
+                          </MediaQuery>
+                          <MediaQuery
+                            largerThan="sm"
+                            styles={{ display: "none" }}
+                          >
+                            <ActionIcon
+                              pos="absolute"
+                              top="8px"
+                              right="8px"
+                              size="lg"
+                              variant="gradient"
+                              onClick={copy}
                             >
-                              <ActionIcon
-                                pos="absolute"
-                                top="8px"
-                                right="8px"
-                                size="lg"
-                                variant="gradient"
-                                onClick={copy}
-                              >
-                                {copied ? (
-                                  <IconClipboardCheck />
-                                ) : (
-                                  <IconClipboardCopy />
-                                )}
-                              </ActionIcon>
-                            </MediaQuery>
-                          </>
-                        )}
-                      </CopyButton>
-                    </Box>
-                  )}
+                              {copied ? (
+                                <IconClipboardCheck />
+                              ) : (
+                                <IconClipboardCopy />
+                              )}
+                            </ActionIcon>
+                          </MediaQuery>
+                        </>
+                      )}
+                    </CopyButton>
+                  </Box>
                   {userIsAuthor ? (
                     <TextInput
                       placeholder="Description"
@@ -430,52 +357,7 @@ export default function Post(props: PostProps) {
             {uploading && (
               <Loader variant="bars" sx={{ alignSelf: "center" }} />
             )}
-            {userIsAuthor && (
-              <Dropzone
-                onDrop={uploadFiles}
-                onReject={(files) => console.log("rejected files", files)}
-                accept={[...IMAGE_MIME_TYPE, MIME_TYPES.mp4]}
-              >
-                <Group
-                  position="center"
-                  spacing="xl"
-                  style={{ minHeight: rem(220), pointerEvents: "none" }}
-                >
-                  <Dropzone.Accept>
-                    <IconUpload
-                      size="3.2rem"
-                      stroke={1.5}
-                      color={
-                        theme.colors[theme.primaryColor][
-                          theme.colorScheme === "dark" ? 4 : 6
-                        ]
-                      }
-                    />
-                  </Dropzone.Accept>
-                  <Dropzone.Reject>
-                    <IconX
-                      size="3.2rem"
-                      stroke={1.5}
-                      color={
-                        theme.colors.red[theme.colorScheme === "dark" ? 4 : 6]
-                      }
-                    />
-                  </Dropzone.Reject>
-                  <Dropzone.Idle>
-                    <IconPhoto size="3.2rem" stroke={1.5} />
-                  </Dropzone.Idle>
-
-                  <div>
-                    <Text size="xl" inline>
-                      Drag images here or click to select files
-                    </Text>
-                    <Text size="sm" color="dimmed" inline mt={7}>
-                      Attach as many files as you like
-                    </Text>
-                  </div>
-                </Group>
-              </Dropzone>
-            )}
+            {userIsAuthor && <Dropzone onDrop={uploadFiles} />}
           </Stack>
           <Stack h="100%">
             <Paper bg="dark.6" p="lg" withBorder miw="200px">

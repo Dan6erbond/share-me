@@ -1,23 +1,15 @@
+import Dropzone from "@/components/dropzone";
 import Nav from "@/components/nav";
 import { pocketBaseUrl, usePocketBase } from "@/pocketbase";
 import { useAuth } from "@/pocketbase/auth";
 import { File } from "@/pocketbase/models";
-import { Box, Group, Text, rem, useMantineTheme } from "@mantine/core";
-import {
-  Dropzone,
-  FileWithPath,
-  IMAGE_MIME_TYPE,
-  MIME_TYPES,
-} from "@mantine/dropzone";
+import { uploadFile } from "@/pocketbase/uploadFile";
+import { Box, Group } from "@mantine/core";
+import { FileWithPath } from "@mantine/dropzone";
 import { notifications } from "@mantine/notifications";
-import {
-  IconAlertCircle,
-  IconPhoto,
-  IconUpload,
-  IconX,
-} from "@tabler/icons-react";
+import { IconAlertCircle } from "@tabler/icons-react";
 import { GetServerSideProps } from "next";
-import Head from "next/head";
+import Head from "@/components/head";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 
@@ -25,7 +17,6 @@ export default function Home() {
   const router = useRouter();
   const pb = usePocketBase();
   const { user } = useAuth();
-  const theme = useMantineTheme();
 
   const [uploading, setUploading] = useState(false);
 
@@ -38,17 +29,13 @@ export default function Home() {
     const records: File[] = [];
 
     for (const file of files) {
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("name", file.name);
-      formData.append("type", file.type);
-      formData.append("author", user?.id!);
-      formData.append("description", "");
-
       try {
-        const createdRecord = await pb
-          .collection("files")
-          .create<File>(formData);
+        const createdRecord = await uploadFile(pb, {
+          file: file,
+          name: file.name,
+          author: user?.id!,
+          description: "",
+        });
         records.push(createdRecord);
       } catch (ex: any) {
         console.error(ex);
@@ -97,61 +84,11 @@ export default function Home() {
 
   return (
     <>
-      <Head>
-        <title>Share Me</title>
-        <meta
-          name="description"
-          content="Easily share images and videos with others"
-        />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+      <Head pageTitle="Upload" />
       <Box component="main" p="lg">
         <Nav />
         <Group sx={{ justifyContent: "center" }} align="start">
-          <Dropzone
-            onDrop={uploadFiles}
-            onReject={(files) => console.log("rejected files", files)}
-            accept={[...IMAGE_MIME_TYPE, MIME_TYPES.mp4]}
-            loading={uploading}
-          >
-            <Group
-              position="center"
-              spacing="xl"
-              style={{ minHeight: rem(220), pointerEvents: "none" }}
-            >
-              <Dropzone.Accept>
-                <IconUpload
-                  size="3.2rem"
-                  stroke={1.5}
-                  color={
-                    theme.colors[theme.primaryColor][
-                      theme.colorScheme === "dark" ? 4 : 6
-                    ]
-                  }
-                />
-              </Dropzone.Accept>
-              <Dropzone.Reject>
-                <IconX
-                  size="3.2rem"
-                  stroke={1.5}
-                  color={theme.colors.red[theme.colorScheme === "dark" ? 4 : 6]}
-                />
-              </Dropzone.Reject>
-              <Dropzone.Idle>
-                <IconPhoto size="3.2rem" stroke={1.5} />
-              </Dropzone.Idle>
-
-              <div>
-                <Text size="xl" inline>
-                  Drag images here or click to select files
-                </Text>
-                <Text size="sm" color="dimmed" inline mt={7}>
-                  Attach as many files as you like
-                </Text>
-              </div>
-            </Group>
-          </Dropzone>
+          <Dropzone onDrop={uploadFiles} loading={uploading} />
         </Group>
       </Box>
     </>
