@@ -1,21 +1,12 @@
+import Dropzone from "@/components/dropzone";
 import Nav from "@/components/nav";
 import { pocketBaseUrl, usePocketBase } from "@/pocketbase";
 import { useAuth } from "@/pocketbase/auth";
 import { File } from "@/pocketbase/models";
-import { Box, Group, Text, rem, useMantineTheme } from "@mantine/core";
-import {
-  Dropzone,
-  FileWithPath,
-  IMAGE_MIME_TYPE,
-  MIME_TYPES,
-} from "@mantine/dropzone";
+import { Box, Group } from "@mantine/core";
+import { FileWithPath } from "@mantine/dropzone";
 import { notifications } from "@mantine/notifications";
-import {
-  IconAlertCircle,
-  IconPhoto,
-  IconUpload,
-  IconX,
-} from "@tabler/icons-react";
+import { IconAlertCircle } from "@tabler/icons-react";
 import { GetServerSideProps } from "next";
 import Head from "next/head";
 import { useRouter } from "next/router";
@@ -25,7 +16,6 @@ export default function Home() {
   const router = useRouter();
   const pb = usePocketBase();
   const { user } = useAuth();
-  const theme = useMantineTheme();
 
   const [uploading, setUploading] = useState(false);
 
@@ -89,49 +79,7 @@ export default function Home() {
       <Box component="main" p="lg">
         <Nav />
         <Group sx={{ justifyContent: "center" }} align="start">
-          <Dropzone
-            onDrop={uploadFiles}
-            onReject={(files) => console.log("rejected files", files)}
-            accept={[...IMAGE_MIME_TYPE, MIME_TYPES.mp4]}
-            loading={uploading}
-          >
-            <Group
-              position="center"
-              spacing="xl"
-              style={{ minHeight: rem(220), pointerEvents: "none" }}
-            >
-              <Dropzone.Accept>
-                <IconUpload
-                  size="3.2rem"
-                  stroke={1.5}
-                  color={
-                    theme.colors[theme.primaryColor][
-                      theme.colorScheme === "dark" ? 4 : 6
-                    ]
-                  }
-                />
-              </Dropzone.Accept>
-              <Dropzone.Reject>
-                <IconX
-                  size="3.2rem"
-                  stroke={1.5}
-                  color={theme.colors.red[theme.colorScheme === "dark" ? 4 : 6]}
-                />
-              </Dropzone.Reject>
-              <Dropzone.Idle>
-                <IconPhoto size="3.2rem" stroke={1.5} />
-              </Dropzone.Idle>
-
-              <div>
-                <Text size="xl" inline>
-                  Drag images here or click to select files
-                </Text>
-                <Text size="sm" color="dimmed" inline mt={7}>
-                  Attach as many files as you like
-                </Text>
-              </div>
-            </Group>
-          </Dropzone>
+          <Dropzone onDrop={uploadFiles} loading={uploading} />
         </Group>
       </Box>
     </>
