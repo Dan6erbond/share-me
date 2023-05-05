@@ -1,3 +1,4 @@
+import { useAuthMethods } from "@/hooks/useAuthMethods";
 import { pocketBaseUrl, usePocketBase } from "@/pocketbase";
 import {
   Anchor,
@@ -13,6 +14,7 @@ import { useForm } from "@mantine/form";
 import { GetServerSideProps } from "next";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import { useEffect } from "react";
 
 interface SignUpForm {
   email: string;
@@ -24,6 +26,12 @@ interface SignUpForm {
 function SignUp() {
   const pb = usePocketBase();
   const router = useRouter();
+
+  const { usernamePasswordEnabled } = useAuthMethods();
+
+  useEffect(() => {
+    if (!usernamePasswordEnabled) router.push("/login");
+  }, [usernamePasswordEnabled, router]);
 
   const form = useForm<SignUpForm>({
     validate: {
