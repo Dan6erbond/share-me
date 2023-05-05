@@ -38,6 +38,25 @@ export default function Home() {
         return createdRecord;
       } catch (ex) {
         console.error(ex);
+
+        if (ex.response) {
+          const { data, message } = ex.response;
+          if (message === "Failed to create record.") {
+            if (data.file) {
+              const { code, message } = data.file;
+              if (code === "validation_file_size_limit") {
+                notifications.show({
+                  color: "orange",
+                  title: "File too large",
+                  message: message,
+                  icon: <IconAlertCircle />,
+                });
+                continue;
+              }
+            }
+          }
+        }
+
         notifications.show({
           color: "red",
           title: "An error occured",
@@ -51,7 +70,7 @@ export default function Home() {
       (r) => r !== undefined
     ) as File[];
 
-    if (!records) {
+    if (records.length === 0) {
       setUploading(false);
       return;
     }

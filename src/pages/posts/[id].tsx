@@ -113,6 +113,25 @@ export default function Post(props: PostProps) {
         return createdRecord;
       } catch (ex) {
         console.error(ex);
+
+        if (ex.response) {
+          const { data, message } = ex.response;
+          if (message === "Failed to create record.") {
+            if (data.file) {
+              const { code, message } = data.file;
+              if (code === "validation_file_size_limit") {
+                notifications.show({
+                  color: "orange",
+                  title: "File too large",
+                  message: message,
+                  icon: <IconAlertCircle />,
+                });
+                continue;
+              }
+            }
+          }
+        }
+
         notifications.show({
           color: "red",
           title: "An error occured",
@@ -126,7 +145,7 @@ export default function Post(props: PostProps) {
       (r) => r !== undefined
     ) as File[];
 
-    if (!records) {
+    if (records.length === 0) {
       setUploading(false);
       return;
     }
@@ -418,10 +437,10 @@ export const getServerSideProps: GetServerSideProps<PostProps> = async ({
     return { notFound: true };
   }
 
-  const images = (record.expand.files as File[]).filter((f) =>
+  const images = ((record.expand.files as File[]) ?? []).filter((f) =>
     IMAGE_MIME_TYPE.includes(f.type as any)
   );
-  const videos = (record.expand.files as File[]).filter(
+  const videos = ((record.expand.files as File[]) ?? []).filter(
     (f) => !IMAGE_MIME_TYPE.includes(f.type as any)
   );
 
