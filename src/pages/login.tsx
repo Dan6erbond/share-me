@@ -114,8 +114,10 @@ function Login() {
                     {...form.getInputProps("password")}
                   />
                   {loginError && <Text color="red">{loginError}</Text>}
-                  <Divider />
                 </>
+              )}
+              {usernamePasswordEnabled && authProviders.length > 0 && (
+                <Divider />
               )}
               {authProviders?.map((provider) => (
                 <Button
