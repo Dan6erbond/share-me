@@ -39,6 +39,7 @@ import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
 import { Record } from "pocketbase";
 import { useCallback, useEffect, useState } from "react";
+import { useUploadFiles } from "@/hooks/useUploadFiles";
 
 interface PostProps {
   title: string;
@@ -64,9 +65,31 @@ export default function Post(props: PostProps) {
   const [nsfw, setNsfw] = useState(props.nsfw);
 
   const [blurred, setBlurred] = useState<boolean[]>([]);
-  const [uploading, setUploading] = useState(false);
 
   const [debouncedTitle] = useDebouncedValue(title, 200, { leading: true });
+
+  const { uploading, uploadFiles: _uploadFiles } = useUploadFiles();
+
+  const uploadFiles = (f: FileWithPath[]) =>
+    _uploadFiles(
+      f.map((file) => ({
+        file: file,
+        name: file.name,
+        author: user?.id!,
+        description: "",
+      }))
+    ).then(async (records) => {
+      if (records.length === 0) {
+        return;
+      }
+
+      const newFiles = [...files, ...records];
+      setFiles(newFiles);
+      const record = await pb
+        .collection("posts")
+        .update<Post>(post!.id, { files: newFiles.map((f) => f.id) });
+      setValues(record);
+    });
 
   useEffect(() => {
     setBlurred(files.map(() => nsfw));
@@ -98,66 +121,6 @@ export default function Post(props: PostProps) {
   useEffect(() => {
     id && fetchPost();
   }, [id, fetchPost]);
-
-  const uploadFiles = async (f: FileWithPath[]) => {
-    setUploading(true);
-
-    const promises = f.map(async (file) => {
-      try {
-        const createdRecord = await uploadFile(pb, {
-          file: file,
-          name: file.name,
-          author: user?.id!,
-          description: "",
-        });
-        return createdRecord;
-      } catch (ex: any) {
-        console.error(ex);
-
-        if (ex.response) {
-          const { data, message } = ex.response;
-          if (message === "Failed to create record.") {
-            if (data.file) {
-              const { code, message } = data.file;
-              if (code === "validation_file_size_limit") {
-                notifications.show({
-                  color: "orange",
-                  title: "File too large",
-                  message: message,
-                  icon: <IconAlertCircle />,
-                });
-              }
-              return;
-            }
-          }
-        }
-
-        notifications.show({
-          color: "red",
-          title: "An error occured",
-          message: "Please contact the developers",
-          icon: <IconAlertCircle />,
-        });
-      }
-    });
-
-    const records = (await Promise.all(promises)).filter(
-      (r) => r !== undefined
-    ) as File[];
-
-    if (records.length === 0) {
-      setUploading(false);
-      return;
-    }
-
-    const newFiles = [...files, ...records];
-    setFiles(newFiles);
-    const record = await pb
-      .collection("posts")
-      .update<Post>(post!.id, { files: newFiles.map((f) => f.id) });
-    setValues(record);
-    setUploading(false);
-  };
 
   const deleteFile = async (id: string) => {
     const record = await pb.collection("posts").update<Post>(post!.id, {

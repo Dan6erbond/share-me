@@ -3,87 +3,46 @@ import Head from "@/components/head";
 import Nav from "@/components/nav";
 import { pocketBaseUrl, usePocketBase } from "@/pocketbase";
 import { useAuth } from "@/pocketbase/auth";
-import { File } from "@/pocketbase/models";
-import { uploadFile } from "@/pocketbase/uploadFile";
 import { Box, Group } from "@mantine/core";
 import { FileWithPath } from "@mantine/dropzone";
-import { notifications } from "@mantine/notifications";
-import { IconAlertCircle } from "@tabler/icons-react";
 import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
+import { useUploadFiles } from "@/hooks/useUploadFiles";
 
 export default function Home() {
   const router = useRouter();
   const pb = usePocketBase();
   const { user } = useAuth();
 
-  const [uploading, setUploading] = useState(false);
+  const { uploading, uploadFiles: _uploadFiles } = useUploadFiles();
 
   useEffect(() => {
     if (!user) router.push("/login");
   }, [user, router]);
 
-  const uploadFiles = async (files: FileWithPath[]) => {
-    setUploading(true);
-
-    const promises = files.map(async (file) => {
-      try {
-        const createdRecord = await uploadFile(pb, {
-          file: file,
-          name: file.name,
-          author: user?.id!,
-          description: "",
-        });
-        return createdRecord;
-      } catch (ex: any) {
-        console.error(ex);
-
-        if (ex.response) {
-          const { data, message } = ex.response;
-          if (message === "Failed to create record.") {
-            if (data.file) {
-              const { code, message } = data.file;
-              if (code === "validation_file_size_limit") {
-                notifications.show({
-                  color: "orange",
-                  title: "File too large",
-                  message: message,
-                  icon: <IconAlertCircle />,
-                });
-                return;
-              }
-            }
-          }
-        }
-
-        notifications.show({
-          color: "red",
-          title: "An error occured",
-          message: "Please contact the developers",
-          icon: <IconAlertCircle />,
-        });
+  const uploadFiles = async (files: FileWithPath[]) =>
+    _uploadFiles(
+      files.map((file) => ({
+        file: file,
+        name: file.name,
+        author: user?.id!,
+        description: "",
+      }))
+    ).then(async (records) => {
+      if (records.length === 0) {
+        return;
       }
+
+      const post = await pb.collection("posts").create({
+        title: "",
+        author: user?.id!,
+        files: records.map((f) => f.id),
+        public: false,
+      });
+
+      router.push("/posts/" + post.id);
     });
-
-    const records = (await Promise.all(promises)).filter(
-      (r) => r !== undefined
-    ) as File[];
-
-    if (records.length === 0) {
-      setUploading(false);
-      return;
-    }
-
-    const post = await pb.collection("posts").create({
-      title: "",
-      author: user?.id!,
-      files: records.map((f) => f.id),
-      public: false,
-    });
-    setUploading(false);
-    router.push("/posts/" + post.id);
-  };
 
   return (
     <>
