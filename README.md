@@ -1,38 +1,108 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+[![Docker build](https://github.com/Dan6erbond/share-me/actions/workflows/main.yml/badge.svg)](https://github.com/Dan6erbond/share-me/actions/workflows/main.yml)
+[![Latest Release](https://img.shields.io/github/v/release/Dan6erbond/share-me?include_prereleases)](https://github.com/Dan6erbond/share-me/releases/latest)
+[![GitHub Issues](https://img.shields.io/github/issues/Dan6erbond/share-me)](https://github.com/Dan6erbond/share-me/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc)
 
-## Getting Started
+# Share Me
 
-First, run the development server:
+A selfhosted image and video uploading platform that uses Next.js and PocketBase. An open-source alternative to Imgur.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
+![Screenshot](./assets/screenshots/Screenshot 2023-05-05 223124.png)
+
+## Features
+
+- Sign-Up with Username/Email and Password
+- Share Post URLs, Mark Post Public/NSFW
+- Generate OpenGraph and Twitter Metadata for Social Media Embeds
+  - Supports WhatsApp, Discord, Twitter, Facebook and More
+- PocketBase Backend with Support for the Following:
+  - OIDC Authentication
+  - SMTP Mail Server for Verification Mails (WIP)
+  - S3 Configuration for File Storage
+  - Configurable File Size Limit
+  - Fast Database Using SQLite
+  - Admin UI and REST APIs with JavaScript and Dart Client SDKs
+
+## Usage
+
+Share Me can be deployed to your own infrastructure with Docker. For more information see [Deployment](#deployment).
+
+Once the initial setup is complete, head to the URL of your Share Me instance. You will be redirected to /login if you aren't logged in yet. Alternatively, you can create an account under /sign-up.
+
+To create posts simply go back to the homepage after logging in, and
+
+## Deployment
+
+Use the sample `docker-compose.yml` to deploy your Share Me instance. This will deploy a PocketBase server at port `:8080` and the Next.js frontend to `:3000`.
+
+### PocketBase URL
+
+You can set the PocketBase server URL with `host:port` in the `POCKETBASE_URL` environment variable or a hostname if deployed with a reverse proxy.
+
+### Reverse Proxy
+
+If you have a reverse proxy such as Traefik or Apache, you can expose the application under `/` and the PocketBase API under `/api/` as well as the admin UI under `/_/`. This will be the optimal setup for production. The `POCKETBASE_URL` should be set to `https://shareme.example.com`.
+
+<details>
+  <summary>Kubernetes Ingress Sample</summary>
+
+```yml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: share-me
+spec:
+  rules:
+    - host: shareme.example.com
+      http:
+        paths:
+          - backend:
+              service:
+                name: share-me-frontend
+                port:
+                  name: http
+            path: /
+            pathType: Prefix
+          - backend:
+              service:
+                name: share-me-server
+                port:
+                  name: http
+            path: /api/
+            pathType: Prefix
+          - backend:
+              service:
+                name: share-me-server
+                port:
+                  name: http
+            path: /_/
+            pathType: Prefix
 ```
+</details>
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Configuration
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+### S3
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+S3 can be configured in PocketBase under Settings > Files storage. You can enable S3 and provide AWS S3 configurations or an S3-compatible API such as MinIO or DigitalOcean Spaces.
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+### SMTP
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+SMTP is used by Share Me for email verification (WIP). To configure a mail server head to Settings > Mail settings and configure your SMTP server.
 
-## Learn More
+### File Size Limit
 
-To learn more about Next.js, take a look at the following resources:
+The default file size limit is about 5MB and can be changed in the PocketBase UI. Head to Collections > files > Settings (cog icon) and edit the `file` column settings. Set the Max file size to whatever you want.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Authentication
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+Share Me loads the configured PocketBase authentication providers. Head to your PocketBase admin dashboard, go to Settings > Auth providers and configure the ones you want to use.
 
-## Deploy on Vercel
+To disable username/password and email/password login if you only want to allow access via SSO, go to Collections > users > Settings (cog icon) > Options and disable/enable the methods you want.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Contributions
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+🚧 WIP
+
+## License
+
+This project is licensed under [MIT](./LICENSE).
