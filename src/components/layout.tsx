@@ -90,7 +90,6 @@ function Layout({ children }: LayoutProps) {
                     {post.public && <Badge>Public</Badge>}
                     {post.nsfw && <Badge color="red">NSFW</Badge>}
                   </Group>
-                  <Text>{post.expand.files.length} Files</Text>
                 </Stack>
                 <Box sx={{ flexGrow: 1, width: "auto" }} />
                 {Array.isArray(post.expand.files) && (
