@@ -1,3 +1,6 @@
+import { useAuthMethods } from "@/hooks/useAuthMethods";
+import { usePocketBase } from "@/pocketbase";
+import { useAuth } from "@/pocketbase/auth";
 import {
   ActionIcon,
   Anchor,
@@ -11,12 +14,11 @@ import {
 } from "@mantine/core";
 import { IconCirclePlus, IconLogout } from "@tabler/icons-react";
 import Link from "next/link";
-import { usePocketBase } from "../pocketbase";
-import { useAuth } from "../pocketbase/auth";
 
 function Nav() {
   const pb = usePocketBase();
   const { user } = useAuth();
+  const { usernamePasswordEnabled } = useAuthMethods();
 
   return (
     <Box component="nav" mb="xl">
@@ -72,15 +74,17 @@ function Nav() {
             >
               Login
             </Button>
-            <Button
-              radius="xl"
-              variant="outline"
-              size="md"
-              component={Link}
-              href="/sign-up"
-            >
-              Sign Up
-            </Button>
+            {usernamePasswordEnabled && (
+              <Button
+                radius="xl"
+                variant="outline"
+                size="md"
+                component={Link}
+                href="/sign-up"
+              >
+                Sign Up
+              </Button>
+            )}
           </Group>
         )}
       </Group>
