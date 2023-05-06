@@ -7,6 +7,7 @@ import {
   Box,
   Button,
   Group,
+  Header as MantineHeader,
   MediaQuery,
   Title,
   em,
@@ -15,13 +16,13 @@ import {
 import { IconCirclePlus, IconLogout } from "@tabler/icons-react";
 import Link from "next/link";
 
-function Nav() {
+function Header() {
   const pb = usePocketBase();
   const { user } = useAuth();
   const { usernamePasswordEnabled } = useAuthMethods();
 
   return (
-    <Box component="nav" mb="xl">
+    <MantineHeader height={75} p="md">
       <Group>
         <Anchor
           component={Link}
@@ -88,8 +89,8 @@ function Nav() {
           </Group>
         )}
       </Group>
-    </Box>
+    </MantineHeader>
   );
 }
 
-export default Nav;
+export default Header;

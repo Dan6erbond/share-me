@@ -1,6 +1,6 @@
 import Dropzone from "@/components/dropzone";
 import Head from "@/components/head";
-import Nav from "@/components/nav";
+import Header from "@/components/header";
 import { useUploadFiles } from "@/hooks/useUploadFiles";
 import {
   initPocketBaseServer,
@@ -179,7 +179,7 @@ export default function Post(props: PostProps) {
       />
 
       <Box component="main" p="lg">
-        <Nav />
+        <Header />
         <Group sx={{ justifyContent: "center" }} align="start">
           <Stack maw="650px" miw="350px" sx={{ flex: 1, flexGrow: 1 }} px="md">
             {userIsAuthor ? (
