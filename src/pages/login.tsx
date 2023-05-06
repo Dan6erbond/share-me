@@ -97,12 +97,12 @@ function Login() {
         <Group position="center" h="100vh">
           <form onSubmit={form.onSubmit(login)}>
             <Stack>
+              <Title>Share Me</Title>
+              <Title order={3} color="gray.5">
+                Login
+              </Title>
               {usernamePasswordEnabled && (
                 <>
-                  <Title>Share Me</Title>
-                  <Title order={3} color="gray.5">
-                    Login
-                  </Title>
                   <TextInput
                     label="Username"
                     miw="300px"
