@@ -51,12 +51,7 @@ function Layout({ children }: LayoutProps) {
 
   return (
     <AppShell header={<Header />}>
-      <Drawer
-        opened={opened}
-        onClose={close}
-        title="My Posts"
-        styles={{ header: { background: "none" } }}
-      >
+      <Drawer opened={opened} onClose={close} title="My Posts">
         <Stack>
           {userPosts?.map((post) => (
             <Paper
@@ -77,6 +72,7 @@ function Layout({ children }: LayoutProps) {
                       <Tooltip
                         label={new Date(post.created).toLocaleString()}
                         color="dark"
+                        zIndex={1100}
                       >
                         <Text color="gray.6" size="sm">
                           {getRelativeTime(new Date(), new Date(post.created))}
