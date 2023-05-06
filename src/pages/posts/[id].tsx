@@ -1,6 +1,6 @@
 import Dropzone from "@/components/dropzone";
 import Head from "@/components/head";
-import Header from "@/components/header";
+import Layout from "@/components/layout";
 import { useUploadFiles } from "@/hooks/useUploadFiles";
 import {
   initPocketBaseServer,
@@ -178,8 +178,7 @@ export default function Post(props: PostProps) {
         twitterCard="summary_large_image"
       />
 
-      <Box component="main" p="lg">
-        <Header />
+      <Layout>
         <Group sx={{ justifyContent: "center" }} align="start">
           <Stack maw="650px" miw="350px" sx={{ flex: 1, flexGrow: 1 }} px="md">
             {userIsAuthor ? (
@@ -364,7 +363,7 @@ export default function Post(props: PostProps) {
             </Paper>
           </Stack>
         </Group>
-      </Box>
+      </Layout>
     </>
   );
 }
