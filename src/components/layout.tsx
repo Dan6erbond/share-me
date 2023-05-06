@@ -11,6 +11,7 @@ import {
   Group,
   Image,
   Paper,
+  ScrollArea,
   Stack,
   Text,
   Title,
@@ -51,7 +52,12 @@ function Layout({ children }: LayoutProps) {
 
   return (
     <AppShell header={<Header />}>
-      <Drawer opened={opened} onClose={close} title="My Posts">
+      <Drawer
+        opened={opened}
+        onClose={close}
+        title="My Posts"
+        scrollAreaComponent={ScrollArea.Autosize}
+      >
         <Stack>
           {userPosts?.map((post) => (
             <Paper
