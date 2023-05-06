@@ -6,24 +6,24 @@ import {
   AppShell,
   Badge,
   Box,
+  Center,
   Drawer,
   Group,
+  Image,
   Paper,
   Stack,
   Text,
   Title,
   Tooltip,
-  Image,
-  Center,
 } from "@mantine/core";
+import { IMAGE_MIME_TYPE } from "@mantine/dropzone";
 import { useDisclosure } from "@mantine/hooks";
 import Link from "next/link";
 import { Record } from "pocketbase";
 import React, { useEffect, useState } from "react";
-import { HiDocumentDuplicate } from "react-icons/hi";
+import { SlDrawer } from "react-icons/sl";
 import { getRelativeTime } from "../utils/relativeTime";
 import Header from "./header";
-import { IMAGE_MIME_TYPE } from "@mantine/dropzone";
 
 interface LayoutProps {
   children?: React.ReactNode;
@@ -159,7 +159,7 @@ function Layout({ children }: LayoutProps) {
           radius="xl"
           onClick={toggle}
         >
-          <HiDocumentDuplicate size={24} />
+          <SlDrawer size={24} />
         </ActionIcon>
       )}
     </AppShell>
