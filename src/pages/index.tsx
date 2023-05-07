@@ -87,7 +87,7 @@ export default function Home() {
             <Group sx={{ flexWrap: "nowrap" }}>
               {posts.map((post) => (
                 <Card key={post.id} p={0}>
-                  <Card.Section p="md" pt="lg" m={0}>
+                  <Card.Section p="sm" pt={26} m={0}>
                     <Title order={4}>
                       {post.title ||
                         `Post by ${(post.expand.author as Record).username}`}
