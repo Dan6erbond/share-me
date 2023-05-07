@@ -1,14 +1,21 @@
 import Layout from "@/components/layout";
 import PostCard from "@/components/postCard";
+import { useCreatePost } from "@/hooks/useCreatePost";
+import { usePasteFiles } from "@/hooks/usePasteFiles";
 import { usePocketBase } from "@/pocketbase";
+import { useAuth } from "@/pocketbase/auth";
 import { Post } from "@/pocketbase/models";
+import { MEDIA_MIME_TYPE } from "@/utils/mediaTypes";
 import { Skeleton, Stack, Text } from "@mantine/core";
 import { useIntersection } from "@mantine/hooks";
+import { useRouter } from "next/router";
 import { useEffect } from "react";
 import { useInfiniteQuery } from "react-query";
 
 export default function Posts() {
+  const router = useRouter();
   const pb = usePocketBase();
+  const { user } = useAuth();
   const {
     isLoading,
     error,
@@ -29,6 +36,33 @@ export default function Posts() {
         data.page < data.totalPages ? data.page + 1 : null,
     }
   );
+
+  const { uploading, createPost: _createPost } = useCreatePost({
+    acceptTypes: MEDIA_MIME_TYPE,
+  });
+
+  const createPost = (files: File[]) =>
+    _createPost({
+      title: "",
+      author: user?.id!,
+      files: files.map((file) => ({
+        file: file,
+        name: file.name,
+        author: user?.id!,
+        description: "",
+      })),
+    }).then(async (post) => {
+      if (!post) {
+        return;
+      }
+
+      router.push("/posts/" + post.id);
+    });
+
+  usePasteFiles({
+    acceptTypes: MEDIA_MIME_TYPE,
+    onPaste: (files) => user && createPost(files),
+  });
 
   const { ref, entry } = useIntersection();
 
