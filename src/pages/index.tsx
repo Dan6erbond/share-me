@@ -86,7 +86,15 @@ export default function Home() {
           <ScrollArea mb="lg" py="md">
             <Group sx={{ flexWrap: "nowrap" }}>
               {posts.map((post) => (
-                <Card key={post.id} p={0}>
+                <Card
+                  key={post.id}
+                  p={0}
+                  component={Link}
+                  href={`/posts/${post.id}`}
+                  sx={(theme) => ({
+                    ":hover": { background: theme.colors.dark[8] },
+                  })}
+                >
                   <Card.Section p="sm" pt={26} m={0}>
                     <Title order={4}>
                       {post.title ||
