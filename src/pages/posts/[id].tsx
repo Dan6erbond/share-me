@@ -11,6 +11,8 @@ import { withEnv } from "@/utils/env";
 import { MEDIA_MIME_TYPE } from "@/utils/mediaTypes";
 import {
   ActionIcon,
+  Anchor,
+  Avatar,
   Box,
   Button,
   Checkbox,
@@ -24,6 +26,7 @@ import {
   Switch,
   Text,
   TextInput,
+  Title,
 } from "@mantine/core";
 import { IMAGE_MIME_TYPE } from "@mantine/dropzone";
 import { useDebouncedValue } from "@mantine/hooks";
@@ -33,6 +36,7 @@ import {
   IconTrash,
 } from "@tabler/icons-react";
 import { GetServerSideProps } from "next";
+import Link from "next/link";
 import { useRouter } from "next/router";
 import { Record } from "pocketbase";
 import { useCallback, useEffect, useState } from "react";
@@ -47,6 +51,8 @@ interface PostProps {
   video?: string | null;
   signupEnabled: boolean;
 }
+
+const queryParams = { expand: "author" };
 
 export default function Post(props: PostProps) {
   const router = useRouter();
@@ -86,7 +92,11 @@ export default function Post(props: PostProps) {
       setFiles(newFiles);
       const record = await pb
         .collection("posts")
-        .update<Post>(post!.id, { files: newFiles.map((f) => f.id) });
+        .update<Post>(
+          post!.id,
+          { files: newFiles.map((f) => f.id) },
+          queryParams
+        );
       setValues(record);
     });
 
@@ -141,7 +151,9 @@ export default function Post(props: PostProps) {
       try {
         const record = await pb
           .collection("posts")
-          .getOne<Post>(Array.isArray(id) ? id[0] : id!, { expand: "files" });
+          .getOne<Post>(Array.isArray(id) ? id[0] : id!, {
+            expand: "files,author",
+          });
         setValues(record);
       } catch {}
     }
@@ -152,9 +164,13 @@ export default function Post(props: PostProps) {
   }, [id, fetchPost]);
 
   const deleteFile = async (id: string) => {
-    const record = await pb.collection("posts").update<Post>(post!.id, {
-      files: files.filter((f) => f.id !== id).map((f) => f.id),
-    });
+    const record = await pb.collection("posts").update<Post>(
+      post!.id,
+      {
+        files: files.filter((f) => f.id !== id).map((f) => f.id),
+      },
+      queryParams
+    );
     await pb.collection("files").delete(id);
     setFiles((files) => files.filter((f) => f.id !== id));
     setValues(record);
@@ -185,11 +201,15 @@ export default function Post(props: PostProps) {
       return;
     (async () => {
       try {
-        const record = await pb.collection("posts").update<Post>(post!.id, {
-          nsfw,
-          title: debouncedTitle || post.title,
-          public: isPublic,
-        });
+        const record = await pb.collection("posts").update<Post>(
+          post!.id,
+          {
+            nsfw,
+            title: debouncedTitle || post.title,
+            public: isPublic,
+          },
+          queryParams
+        );
         setValues(record);
       } catch {}
     })();
@@ -213,6 +233,21 @@ export default function Post(props: PostProps) {
       <Layout signupEnabled={props.signupEnabled}>
         <Group sx={{ justifyContent: "center" }} align="start">
           <Stack maw="650px" miw="350px" sx={{ flex: 1, flexGrow: 1 }} px="md">
+            {userIsAuthor ||
+              (post && (
+                <Anchor
+                  unstyled
+                  component={Link}
+                  href={`/users/${(post.expand.author as Record).id}`}
+                >
+                  <Group spacing="sm">
+                    <Text size="sm">
+                      {(post.expand.author as Record).username}
+                    </Text>
+                    <Avatar radius="xl" size="sm"></Avatar>
+                  </Group>
+                </Anchor>
+              ))}
             {userIsAuthor ? (
               <TextInput
                 placeholder="Give your Post a Unique Title"
@@ -222,7 +257,7 @@ export default function Post(props: PostProps) {
                 onChange={(e) => setTitle(e.target.value)}
               />
             ) : (
-              post?.title && <Text>{post?.title}</Text>
+              post?.title && <Title order={1}>{post?.title}</Title>
             )}
             {files.map((f, idx) => (
               <Paper

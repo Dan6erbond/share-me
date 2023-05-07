@@ -7,12 +7,12 @@ import { useAuth } from "@/pocketbase/auth";
 import { Post } from "@/pocketbase/models";
 import { withEnv } from "@/utils/env";
 import { MEDIA_MIME_TYPE } from "@/utils/mediaTypes";
-import { Skeleton, Stack, Text } from "@mantine/core";
+import { Skeleton, Stack, Text, Title } from "@mantine/core";
 import { useIntersection } from "@mantine/hooks";
 import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
-import { useInfiniteQuery } from "react-query";
+import { useInfiniteQuery, useQuery } from "react-query";
 
 interface PostsProps {
   signupEnabled: boolean;
@@ -20,8 +20,16 @@ interface PostsProps {
 
 export default function Posts({ signupEnabled }: PostsProps) {
   const router = useRouter();
+
+  const { id } = router.query;
+
   const pb = usePocketBase();
-  const { user } = useAuth();
+  const { user: authenticatedUser } = useAuth();
+
+  const { data: userData } = useQuery(["user", id], () =>
+    pb.collection("users").getOne(Array.isArray(id) ? id[0] : id!)
+  );
+
   const {
     isLoading,
     error,
@@ -36,6 +44,7 @@ export default function Posts({ signupEnabled }: PostsProps) {
         expand: "files,author",
         sort: "-created",
         $autoCancel: false,
+        filter: `author.id = "${id}"`,
       }),
     {
       getNextPageParam: (data) =>
@@ -50,11 +59,11 @@ export default function Posts({ signupEnabled }: PostsProps) {
   const createPost = (files: File[]) =>
     _createPost({
       title: "",
-      author: user?.id!,
+      author: authenticatedUser?.id!,
       files: files.map((file) => ({
         file: file,
         name: file.name,
-        author: user?.id!,
+        author: authenticatedUser?.id!,
         description: "",
       })),
     }).then(async (post) => {
@@ -67,7 +76,7 @@ export default function Posts({ signupEnabled }: PostsProps) {
 
   usePasteFiles({
     acceptTypes: MEDIA_MIME_TYPE,
-    onPaste: (files) => user && createPost(files),
+    onPaste: (files) => authenticatedUser && createPost(files),
   });
 
   const { ref, entry } = useIntersection();
@@ -83,6 +92,7 @@ export default function Posts({ signupEnabled }: PostsProps) {
   return (
     <Layout signupEnabled={signupEnabled}>
       <Stack align="stretch" maw={450} m="0 auto">
+        {userData && <Title>Posts by {userData.username}</Title>}
         {data?.pages.map((p) => (
           <>
             {p.items.map((p) => (
