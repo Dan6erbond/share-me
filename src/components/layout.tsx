@@ -28,9 +28,10 @@ import Header from "./header";
 
 interface LayoutProps {
   children?: React.ReactNode;
+  signupEnabled: boolean;
 }
 
-function Layout({ children }: LayoutProps) {
+function Layout({ children, signupEnabled }: LayoutProps) {
   const pb = usePocketBase();
   const { user } = useAuth();
 
@@ -52,7 +53,7 @@ function Layout({ children }: LayoutProps) {
   }, [user, setUserPosts, pb]);
 
   return (
-    <AppShell header={<Header />}>
+    <AppShell header={<Header signupEnabled={signupEnabled} />}>
       <Drawer
         opened={opened}
         onClose={close}

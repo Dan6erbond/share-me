@@ -2,8 +2,11 @@ import Dropzone from "@/components/dropzone";
 import Head from "@/components/head";
 import Layout from "@/components/layout";
 import { useCreatePost } from "@/hooks/useCreatePost";
-import { pocketBaseUrl, usePocketBase } from "@/pocketbase";
+import { usePasteFiles } from "@/hooks/usePasteFiles";
+import { usePocketBase } from "@/pocketbase";
 import { useAuth } from "@/pocketbase/auth";
+import { Post } from "@/pocketbase/models";
+import { withEnv } from "@/utils/env";
 import { MEDIA_MIME_TYPE } from "@/utils/mediaTypes";
 import {
   Anchor,
@@ -21,14 +24,16 @@ import {
 } from "@mantine/core";
 import { IMAGE_MIME_TYPE } from "@mantine/dropzone";
 import { GetServerSideProps } from "next";
+import Link from "next/link";
 import { useRouter } from "next/router";
 import { Record } from "pocketbase";
 import { useEffect, useState } from "react";
-import { usePasteFiles } from "../hooks/usePasteFiles";
-import { Post } from "../pocketbase/models";
-import Link from "next/link";
 
-export default function Home() {
+interface HomeProps {
+  signupEnabled: boolean;
+}
+
+export default function Home({ signupEnabled }: HomeProps) {
   const router = useRouter();
   const pb = usePocketBase();
   const { user } = useAuth();
@@ -75,7 +80,7 @@ export default function Home() {
   return (
     <>
       <Head pageTitle="Upload" />
-      <Layout>
+      <Layout signupEnabled={signupEnabled}>
         <Container>
           <Flex sx={{ justifyContent: "space-between" }}>
             <Title order={2}>Latest Posts</Title>
@@ -173,6 +178,6 @@ export default function Home() {
 
 export const getServerSideProps: GetServerSideProps = async () => {
   return {
-    props: pocketBaseUrl({}),
+    props: withEnv({}),
   };
 };

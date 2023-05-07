@@ -5,14 +5,20 @@ import { usePasteFiles } from "@/hooks/usePasteFiles";
 import { usePocketBase } from "@/pocketbase";
 import { useAuth } from "@/pocketbase/auth";
 import { Post } from "@/pocketbase/models";
+import { withEnv } from "@/utils/env";
 import { MEDIA_MIME_TYPE } from "@/utils/mediaTypes";
 import { Skeleton, Stack, Text } from "@mantine/core";
 import { useIntersection } from "@mantine/hooks";
+import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 import { useInfiniteQuery } from "react-query";
 
-export default function Posts() {
+interface PostsProps {
+  signupEnabled: boolean;
+}
+
+export default function Posts({ signupEnabled }: PostsProps) {
   const router = useRouter();
   const pb = usePocketBase();
   const { user } = useAuth();
@@ -75,7 +81,7 @@ export default function Posts() {
   }, [isLoading, hasNextPage, entry, isFetchingNextPage, fetchNextPage]);
 
   return (
-    <Layout>
+    <Layout signupEnabled={signupEnabled}>
       <Stack align="center">
         {data?.pages.map((p) => (
           <>
@@ -101,3 +107,9 @@ export default function Posts() {
     </Layout>
   );
 }
+
+export const getServerSideProps: GetServerSideProps = async () => {
+  return {
+    props: withEnv({}),
+  };
+};
