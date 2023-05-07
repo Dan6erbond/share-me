@@ -1,6 +1,6 @@
 import Head from "@/components/head";
 import { useAuthMethods } from "@/hooks/useAuthMethods";
-import { usePocketBase } from "@/pocketbase";
+import { initPocketBaseServer, usePocketBase } from "@/pocketbase";
 import { withEnv } from "@/utils/env";
 import {
   Anchor,
@@ -121,10 +121,20 @@ function SignUp() {
 
 export default SignUp;
 
-export const getServerSideProps: GetServerSideProps = async () => {
+export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
+  const pb = await initPocketBaseServer(req, res);
+
+  const authMethods = await pb
+    .collection("users")
+    .listAuthMethods({ $autoCancel: false });
+
   const props = withEnv({});
 
-  if (!props.signupEnabled) {
+  if (
+    !props.signupEnabled &&
+    !authMethods.usernamePassword &&
+    !authMethods.emailPassword
+  ) {
     return { notFound: true };
   }
 
