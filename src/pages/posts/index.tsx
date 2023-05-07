@@ -43,7 +43,7 @@ export default function Posts({ signupEnabled }: PostsProps) {
     }
   );
 
-  const { uploading, createPost: _createPost } = useCreatePost({
+  const { createPost: _createPost } = useCreatePost({
     acceptTypes: MEDIA_MIME_TYPE,
   });
 
@@ -82,11 +82,11 @@ export default function Posts({ signupEnabled }: PostsProps) {
 
   return (
     <Layout signupEnabled={signupEnabled}>
-      <Stack align="center">
+      <Stack align="stretch" maw={450} m="0 auto">
         {data?.pages.map((p) => (
           <>
             {p.items.map((p) => (
-              <PostCard key={p.id} post={p} maw={400} />
+              <PostCard key={p.id} post={p} maw="100%" />
             ))}
           </>
         ))}
