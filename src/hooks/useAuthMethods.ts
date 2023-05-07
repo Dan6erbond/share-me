@@ -11,7 +11,9 @@ export const useAuthMethods = () => {
   useEffect(() => {
     (async () => {
       try {
-        const authMethods = await pb.collection("users").listAuthMethods();
+        const authMethods = await pb
+          .collection("users")
+          .listAuthMethods({ $autoCancel: false });
         setAuthProviders(authMethods.authProviders);
         setUsernamePasswordEnabled(
           authMethods.usernamePassword || authMethods.emailPassword
