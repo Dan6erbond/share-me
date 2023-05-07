@@ -1,5 +1,7 @@
+import Head from "@/components/head";
 import { useAuthMethods } from "@/hooks/useAuthMethods";
-import { pocketBaseUrl, usePocketBase } from "@/pocketbase";
+import { usePocketBase } from "@/pocketbase";
+import { withEnv } from "@/utils/env";
 import {
   Anchor,
   Box,
@@ -36,7 +38,6 @@ import {
   SiTwitch,
   SiTwitter,
 } from "react-icons/si";
-import Head from "@/components/head";
 
 const authProviderIcons: Record<string, JSX.Element> = {
   apple: <SiApple />,
@@ -63,7 +64,11 @@ interface LoginForm {
   password: string;
 }
 
-function Login() {
+interface LoginProps {
+  signupEnabled: boolean;
+}
+
+function Login({ signupEnabled }: LoginProps) {
   const pb = usePocketBase();
   const router = useRouter();
 
@@ -144,9 +149,11 @@ function Login() {
               ))}
               {usernamePasswordEnabled && (
                 <Group sx={{ justifyContent: "space-between" }}>
-                  <Anchor component={Link} href="/sign-up">
-                    Sign Up
-                  </Anchor>
+                  {signupEnabled && (
+                    <Anchor component={Link} href="/sign-up">
+                      Sign Up
+                    </Anchor>
+                  )}
                   <Button variant="gradient" type="submit">
                     Log In
                   </Button>
@@ -164,6 +171,6 @@ export default Login;
 
 export const getServerSideProps: GetServerSideProps = async () => {
   return {
-    props: pocketBaseUrl({}),
+    props: withEnv({}),
   };
 };

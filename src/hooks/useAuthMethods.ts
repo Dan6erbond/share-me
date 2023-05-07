@@ -10,11 +10,17 @@ export const useAuthMethods = () => {
 
   useEffect(() => {
     (async () => {
-      const authMethods = await pb.collection("users").listAuthMethods();
-      setAuthProviders(authMethods.authProviders);
-      setUsernamePasswordEnabled(
-        authMethods.usernamePassword || authMethods.emailPassword
-      );
+      try {
+        const authMethods = await pb
+          .collection("users")
+          .listAuthMethods({ $autoCancel: false });
+        setAuthProviders(authMethods.authProviders);
+        setUsernamePasswordEnabled(
+          authMethods.usernamePassword || authMethods.emailPassword
+        );
+      } catch (ex) {
+        console.error(ex);
+      }
     })();
   }, [pb, setAuthProviders, setUsernamePasswordEnabled]);
 

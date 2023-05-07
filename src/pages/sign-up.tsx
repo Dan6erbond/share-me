@@ -1,5 +1,7 @@
+import Head from "@/components/head";
 import { useAuthMethods } from "@/hooks/useAuthMethods";
-import { pocketBaseUrl, usePocketBase } from "@/pocketbase";
+import { initPocketBaseServer, usePocketBase } from "@/pocketbase";
+import { withEnv } from "@/utils/env";
 import {
   Anchor,
   Box,
@@ -15,7 +17,6 @@ import { GetServerSideProps } from "next";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
-import Head from "@/components/head";
 
 interface SignUpForm {
   email: string;
@@ -120,8 +121,24 @@ function SignUp() {
 
 export default SignUp;
 
-export const getServerSideProps: GetServerSideProps = async () => {
+export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
+  const pb = await initPocketBaseServer(req, res);
+
+  const authMethods = await pb
+    .collection("users")
+    .listAuthMethods({ $autoCancel: false });
+
+  const props = withEnv({});
+
+  if (
+    !props.signupEnabled &&
+    !authMethods.usernamePassword &&
+    !authMethods.emailPassword
+  ) {
+    return { notFound: true };
+  }
+
   return {
-    props: pocketBaseUrl({}),
+    props,
   };
 };
