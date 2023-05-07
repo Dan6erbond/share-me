@@ -28,6 +28,9 @@ function PostCard({ post, ...props }: PostCardProps) {
       {...props}
       component={Link}
       href={`/posts/${post.id}`}
+      sx={(theme) => ({
+        ":hover": { background: theme.colors.dark[8] },
+      })}
     >
       <Card.Section p="md" pt={32} m={0}>
         <Title order={4}>
