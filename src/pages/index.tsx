@@ -1,6 +1,7 @@
 import Dropzone from "@/components/dropzone";
 import Head from "@/components/head";
 import Layout from "@/components/layout";
+import PostTitle from "@/components/postTitle";
 import { useCreatePost } from "@/hooks/useCreatePost";
 import { usePasteFiles } from "@/hooks/usePasteFiles";
 import { usePocketBase } from "@/pocketbase";
@@ -10,7 +11,6 @@ import { withEnv } from "@/utils/env";
 import { MEDIA_MIME_TYPE } from "@/utils/mediaTypes";
 import {
   Anchor,
-  Badge,
   Box,
   Card,
   Center,
@@ -99,13 +99,10 @@ export default function Home({ signupEnabled }: HomeProps) {
                   sx={(theme) => ({
                     ":hover": { background: theme.colors.dark[8] },
                   })}
+                  miw={300}
                 >
                   <Card.Section p="sm" pt={26} m={0}>
-                    <Title order={4}>
-                      {post.title ||
-                        `Post by ${(post.expand.author as Record).username}`}
-                    </Title>
-                    {post.nsfw && <Badge color="red">NSFW</Badge>}
+                    <PostTitle post={post} compact />
                   </Card.Section>
                   <Card.Section>
                     {Array.isArray(post.expand.files) && (
