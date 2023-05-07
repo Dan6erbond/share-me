@@ -23,7 +23,7 @@ import Link from "next/link";
 import { Record } from "pocketbase";
 import React, { useEffect, useState } from "react";
 import { SlDrawer } from "react-icons/sl";
-import { getRelativeTime } from "../utils/relativeTime";
+import { getRelativeTime } from "@/utils/relativeTime";
 import Header from "./header";
 
 interface LayoutProps {
@@ -153,7 +153,7 @@ function Layout({ children }: LayoutProps) {
       {children}
       {user && (
         <ActionIcon
-          pos="absolute"
+          pos="fixed"
           bottom={20}
           left={20}
           size="xl"
