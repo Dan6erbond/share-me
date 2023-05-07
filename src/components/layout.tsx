@@ -1,6 +1,7 @@
 import { usePocketBase } from "@/pocketbase";
 import { useAuth } from "@/pocketbase/auth";
 import { Post } from "@/pocketbase/models";
+import { getRelativeTime } from "@/utils/relativeTime";
 import {
   ActionIcon,
   AppShell,
@@ -23,7 +24,6 @@ import Link from "next/link";
 import { Record } from "pocketbase";
 import React, { useEffect, useState } from "react";
 import { SlDrawer } from "react-icons/sl";
-import { getRelativeTime } from "@/utils/relativeTime";
 import Header from "./header";
 
 interface LayoutProps {
@@ -45,6 +45,7 @@ function Layout({ children }: LayoutProps) {
           filter: `author.id = "${user.id}"`,
           expand: "files,author",
           sort: "-created",
+          $autoCancel: false,
         });
         setUserPosts(records.items);
       })();
