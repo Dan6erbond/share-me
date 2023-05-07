@@ -5,14 +5,18 @@ import { IconAlertCircle } from "@tabler/icons-react";
 import { useState } from "react";
 import { usePocketBase } from "@/pocketbase";
 
-interface NewFile {
+export interface NewFile {
   file: File;
   name: string;
   author: string;
   description: string;
 }
 
-export const useUploadFiles = () => {
+interface UseUploadFilesOptions {
+  acceptTypes: string[];
+}
+
+export const useUploadFiles = ({ acceptTypes }: UseUploadFilesOptions) => {
   const pb = usePocketBase();
   const [uploading, setUploading] = useState(false);
 
@@ -20,6 +24,8 @@ export const useUploadFiles = () => {
     setUploading(true);
 
     const promises = files.map(async (file) => {
+      if (!acceptTypes.includes(file.file.type)) return;
+
       try {
         const createdRecord = await uploadFile(pb, {
           file: file.file,

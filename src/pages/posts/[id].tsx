@@ -1,6 +1,7 @@
 import Dropzone from "@/components/dropzone";
 import Head from "@/components/head";
 import Layout from "@/components/layout";
+import { usePasteFiles } from "@/hooks/usePasteFiles";
 import { useUploadFiles } from "@/hooks/useUploadFiles";
 import {
   initPocketBaseServer,
@@ -8,7 +9,8 @@ import {
   usePocketBase,
 } from "@/pocketbase";
 import { useAuth } from "@/pocketbase/auth";
-import { File, Post } from "@/pocketbase/models";
+import { Post, File as ShareMeFile } from "@/pocketbase/models";
+import { MEDIA_MIME_TYPE } from "@/utils/mediaTypes";
 import {
   ActionIcon,
   Box,
@@ -32,7 +34,6 @@ import {
   IconClipboardCopy,
   IconTrash,
 } from "@tabler/icons-react";
-import { FileWithPath } from "file-selector";
 import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
 import { Record } from "pocketbase";
@@ -56,7 +57,7 @@ export default function Post(props: PostProps) {
 
   const [post, setPost] = useState<Post | null>();
   const [userIsAuthor, setUserIsAuthor] = useState(props.userIsAuthor);
-  const [files, setFiles] = useState<File[]>([]);
+  const [files, setFiles] = useState<ShareMeFile[]>([]);
   const [title, setTitle] = useState(props.title);
   const [isPublic, setIsPublic] = useState(props.isPublic);
   const [nsfw, setNsfw] = useState(props.nsfw);
@@ -65,9 +66,11 @@ export default function Post(props: PostProps) {
 
   const [debouncedTitle] = useDebouncedValue(title, 200, { leading: true });
 
-  const { uploading, uploadFiles: _uploadFiles } = useUploadFiles();
+  const { uploading, uploadFiles: _uploadFiles } = useUploadFiles({
+    acceptTypes: MEDIA_MIME_TYPE,
+  });
 
-  const uploadFiles = (f: FileWithPath[]) =>
+  const uploadFiles = (f: File[]) =>
     _uploadFiles(
       f.map((file) => ({
         file: file,
@@ -88,6 +91,8 @@ export default function Post(props: PostProps) {
       setValues(record);
     });
 
+  usePasteFiles({ acceptTypes: MEDIA_MIME_TYPE, onPaste: uploadFiles });
+
   useEffect(() => {
     setBlurred(files.map(() => nsfw));
   }, [nsfw, setBlurred, files]);
@@ -95,7 +100,7 @@ export default function Post(props: PostProps) {
   const setValues = useCallback(
     (record: Post) => {
       setPost(record);
-      setFiles((files) => (record.expand.files as File[]) || files);
+      setFiles((files) => (record.expand.files as ShareMeFile[]) || files);
       setTitle(record.title);
       setIsPublic(record.public);
       setNsfw(record.nsfw);
@@ -133,7 +138,7 @@ export default function Post(props: PostProps) {
     values: { name?: string; description?: string }
   ) => {
     try {
-      const record = await pb.collection("files").update<File>(id, {
+      const record = await pb.collection("files").update<ShareMeFile>(id, {
         ...values,
       });
       setFiles((files) => files.map((f) => (f.id === id ? record : f)));
@@ -396,10 +401,10 @@ export const getServerSideProps: GetServerSideProps<PostProps> = async ({
     return { notFound: true };
   }
 
-  const images = ((record.expand.files as File[]) ?? []).filter((f) =>
+  const images = ((record.expand.files as ShareMeFile[]) ?? []).filter((f) =>
     IMAGE_MIME_TYPE.includes(f.type as any)
   );
-  const videos = ((record.expand.files as File[]) ?? []).filter(
+  const videos = ((record.expand.files as ShareMeFile[]) ?? []).filter(
     (f) => !IMAGE_MIME_TYPE.includes(f.type as any)
   );
 
