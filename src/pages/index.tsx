@@ -69,7 +69,7 @@ export default function Home() {
 
   usePasteFiles({
     acceptTypes: MEDIA_MIME_TYPE,
-    onPaste: createPost,
+    onPaste: (files) => user && createPost(files),
   });
 
   return (
