@@ -38,6 +38,7 @@ import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
 import { Record } from "pocketbase";
 import { useCallback, useEffect, useState } from "react";
+import { useCreatePost } from "../../hooks/useCreatePost";
 
 interface PostProps {
   title: string;
@@ -91,7 +92,35 @@ export default function Post(props: PostProps) {
       setValues(record);
     });
 
-  usePasteFiles({ acceptTypes: MEDIA_MIME_TYPE, onPaste: uploadFiles });
+  const { createPost: _createPost } = useCreatePost({
+    acceptTypes: MEDIA_MIME_TYPE,
+  });
+
+  const createPost = (files: File[]) =>
+    _createPost({
+      title: "",
+      author: user?.id!,
+      files: files.map((file) => ({
+        file: file,
+        name: file.name,
+        author: user?.id!,
+        description: "",
+      })),
+    }).then(async (post) => {
+      if (!post) {
+        return;
+      }
+
+      router.push("/posts/" + post.id);
+    });
+
+  usePasteFiles({
+    acceptTypes: MEDIA_MIME_TYPE,
+    onPaste: (files) =>
+      post?.author === user?.id
+        ? uploadFiles(files)
+        : user?.id && createPost(files),
+  });
 
   useEffect(() => {
     setBlurred(files.map(() => nsfw));
