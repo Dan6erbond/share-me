@@ -89,7 +89,7 @@ export default function Home({ signupEnabled }: HomeProps) {
             </Anchor>
           </Flex>
           <ScrollArea mb="lg" py="md">
-            <Group sx={{ flexWrap: "nowrap" }}>
+            <Group sx={{ flexWrap: "nowrap", alignItems: "stretch" }}>
               {posts.map((post) => (
                 <Card
                   key={post.id}
@@ -98,15 +98,37 @@ export default function Home({ signupEnabled }: HomeProps) {
                   href={`/posts/${post.id}`}
                   sx={(theme) => ({
                     ":hover": { background: theme.colors.dark[8] },
+                    display: "flex",
+                    flexDirection: "column",
                   })}
-                  miw={300}
+                  miw={250}
+                  maw={{ base: 250, md: 350 }}
+                  mah={350}
                 >
                   <Card.Section p="sm" pt={26} m={0}>
                     <PostTitle post={post} compact />
                   </Card.Section>
-                  <Card.Section>
+                  <Card.Section
+                    maw="100%"
+                    m={0}
+                    mih={0}
+                    h="100%"
+                    sx={{
+                      flex: 1,
+                      display: "flex",
+                      "&[data-last]": { marginBottom: 0 },
+                    }}
+                  >
                     {Array.isArray(post.expand.files) && (
-                      <Box pos="relative">
+                      <Flex
+                        pos="relative"
+                        mah="100%"
+                        w="100%"
+                        maw="100%"
+                        align="center"
+                        justify="center"
+                        sx={{ overflow: "hidden" }}
+                      >
                         {IMAGE_MIME_TYPE.includes(post.expand.files[0].type) ? (
                           <Image
                             src={pb.files.getUrl(
@@ -130,6 +152,11 @@ export default function Home({ signupEnabled }: HomeProps) {
                             muted
                             autoPlay
                             controls={false}
+                            style={{
+                              maxHeight: "100%",
+                              margin: "0 auto",
+                              display: "block",
+                            }}
                           />
                         )}
                         {post.expand.files.length > 1 && (
@@ -155,7 +182,7 @@ export default function Home({ signupEnabled }: HomeProps) {
                             </Center>
                           </Box>
                         )}
-                      </Box>
+                      </Flex>
                     )}
                   </Card.Section>
                 </Card>
@@ -164,7 +191,7 @@ export default function Home({ signupEnabled }: HomeProps) {
           </ScrollArea>
           {user && (
             <Group sx={{ justifyContent: "center" }} align="start">
-              <Dropzone onDrop={createPost} loading={uploading} />
+              <Dropzone onDrop={createPost} loading={uploading} w="100%" />
             </Group>
           )}
         </Container>
