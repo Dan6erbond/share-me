@@ -207,7 +207,9 @@ export default function Post(props: PostProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [post, debouncedTitle, isPublic, nsfw]);
 
-  const postTitle = post?.title || `Post by ${props.postAuthorUsername}`;
+  const postTitle =
+    (nsfw ? "[NSFW] " : "") + post?.title ||
+    `Post by ${props.postAuthorUsername}`;
   const description = `Shared by ${props.postAuthorUsername}`;
 
   return (
