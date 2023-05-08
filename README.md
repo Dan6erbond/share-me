@@ -8,13 +8,16 @@ A selfhosted image and video uploading platform that uses Next.js and PocketBase
 
 ![Screenshot](./assets/screenshots/post.png)
 
+More screenshots can be found in the [screenshots](./assets/screenshots/) directory.
+
 ## Features
 
-- Sign-Up with Username/Email and Password
+- Full-Page Drag/Drop and Paste Support
 - Share Post URLs, Mark Post Public/NSFW
 - Generate OpenGraph and Twitter Metadata for Social Media Embeds
   - Supports WhatsApp, Discord, Twitter, Facebook and More
 - PocketBase Backend with Support for the Following:
+  - Username/Email Sign-up and Login
   - OIDC Authentication
   - SMTP Mail Server for Verification Mails (WIP)
   - S3 Configuration for File Storage
@@ -96,9 +99,15 @@ The default file size limit is about 5MB and can be changed in the PocketBase UI
 
 ### Authentication
 
+#### Providers
+
 Share Me loads the configured PocketBase authentication providers. Head to your PocketBase admin dashboard, go to Settings > Auth providers and configure the ones you want to use.
 
+#### Disabling Username/Password
+
 To disable username/password and email/password login if you only want to allow access via SSO, go to Collections > users > Settings (cog icon) > Options and disable/enable the methods you want.
+
+If you only want to disable sign-up, remove the "create" API rules to only allow admins to create new users. You can set the `SIGNUP_ENABLED` environment variable in the frontend to disable the sign-up page and remove links to it.
 
 ## Contributions
 
