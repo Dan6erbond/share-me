@@ -2,7 +2,7 @@ import { pocketBaseUrl } from "../pocketbase";
 
 export interface ShareMeEnv {
   signUpEnabled: boolean;
-  pocketbaseUrl?: string;
+  pocketBaseUrl?: string;
   umami?: { websiteId: string; umamiJs: string } | null;
 }
 
