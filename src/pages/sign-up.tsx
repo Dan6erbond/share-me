@@ -131,7 +131,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
   const props = withEnv({});
 
   if (
-    !props.signupEnabled &&
+    !props.signUpEnabled &&
     !authMethods.usernamePassword &&
     !authMethods.emailPassword
   ) {

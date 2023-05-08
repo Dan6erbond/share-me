@@ -30,10 +30,10 @@ import { Record } from "pocketbase";
 import { useEffect, useState } from "react";
 
 interface HomeProps {
-  signupEnabled: boolean;
+  signUpEnabled: boolean;
 }
 
-export default function Home({ signupEnabled }: HomeProps) {
+export default function Home({ signUpEnabled }: HomeProps) {
   const router = useRouter();
   const pb = usePocketBase();
   const { user } = useAuth();
@@ -80,7 +80,7 @@ export default function Home({ signupEnabled }: HomeProps) {
   return (
     <>
       <Head pageTitle="Upload" />
-      <Layout signupEnabled={signupEnabled}>
+      <Layout signUpEnabled={signUpEnabled}>
         <Container>
           <Flex sx={{ justifyContent: "space-between" }}>
             <Title order={2}>Latest Posts</Title>

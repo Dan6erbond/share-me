@@ -15,10 +15,10 @@ import { useEffect } from "react";
 import { useInfiniteQuery } from "react-query";
 
 interface PostsProps {
-  signupEnabled: boolean;
+  signUpEnabled: boolean;
 }
 
-export default function Posts({ signupEnabled }: PostsProps) {
+export default function Posts({ signUpEnabled }: PostsProps) {
   const router = useRouter();
   const pb = usePocketBase();
   const { user } = useAuth();
@@ -81,7 +81,7 @@ export default function Posts({ signupEnabled }: PostsProps) {
   }, [isLoading, hasNextPage, entry, isFetchingNextPage, fetchNextPage]);
 
   return (
-    <Layout signupEnabled={signupEnabled}>
+    <Layout signUpEnabled={signUpEnabled}>
       <Stack align="stretch" maw={450} m="0 auto">
         {data?.pages.map((p) => (
           <>

@@ -49,7 +49,7 @@ interface PostProps {
   userIsAuthor: boolean;
   image?: string | null;
   video?: string | null;
-  signupEnabled: boolean;
+  signUpEnabled: boolean;
 }
 
 const queryParams = { expand: "author" };
@@ -230,7 +230,7 @@ export default function Post(props: PostProps) {
         twitterCard="summary_large_image"
       />
 
-      <Layout signupEnabled={props.signupEnabled}>
+      <Layout signUpEnabled={props.signUpEnabled}>
         <Group sx={{ justifyContent: "center" }} align="start">
           <Stack maw="650px" miw="350px" sx={{ flex: 1, flexGrow: 1 }} px="md">
             {userIsAuthor ||

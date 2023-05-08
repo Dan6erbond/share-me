@@ -17,10 +17,10 @@ import { IconCirclePlus, IconLogout } from "@tabler/icons-react";
 import Link from "next/link";
 
 interface HeaderProps {
-  signupEnabled: boolean;
+  signUpEnabled: boolean;
 }
 
-function Header({ signupEnabled }: HeaderProps) {
+function Header({ signUpEnabled }: HeaderProps) {
   const pb = usePocketBase();
   const { user } = useAuth();
   const { usernamePasswordEnabled } = useAuthMethods();
@@ -79,7 +79,7 @@ function Header({ signupEnabled }: HeaderProps) {
             >
               Login
             </Button>
-            {usernamePasswordEnabled && signupEnabled && (
+            {usernamePasswordEnabled && signUpEnabled && (
               <Button
                 radius="xl"
                 variant="outline"
