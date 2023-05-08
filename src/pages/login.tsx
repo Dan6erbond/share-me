@@ -1,7 +1,7 @@
 import Head from "@/components/head";
 import { useAuthMethods } from "@/hooks/useAuthMethods";
 import { usePocketBase } from "@/pocketbase";
-import { withEnv } from "@/utils/env";
+import { ShareMeEnv, withEnv } from "@/utils/env";
 import {
   Anchor,
   Box,
@@ -64,9 +64,7 @@ interface LoginForm {
   password: string;
 }
 
-interface LoginProps {
-  signUpEnabled: boolean;
-}
+interface LoginProps extends ShareMeEnv {}
 
 function Login({ signUpEnabled }: LoginProps) {
   const pb = usePocketBase();

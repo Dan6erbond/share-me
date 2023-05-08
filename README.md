@@ -83,6 +83,17 @@ spec:
 
 </details>
 
+### Adding a Tracking Script
+
+Share Me supports Umami tracking scripts, in case you want analytics for your Share Me instance.
+
+To add the tracking script, set the two following environment variables:
+
+```ini
+UMAMI_WEBSITE_ID=<umami-website-id>
+UMAMI_JS=<umami-js>
+```
+
 ## Configuration
 
 ### S3

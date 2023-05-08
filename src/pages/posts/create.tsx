@@ -3,16 +3,14 @@ import Head from "@/components/head";
 import Layout from "@/components/layout";
 import { useCreatePost } from "@/hooks/useCreatePost";
 import { useAuth } from "@/pocketbase/auth";
-import { withEnv } from "@/utils/env";
+import { ShareMeEnv, withEnv } from "@/utils/env";
 import { MEDIA_MIME_TYPE } from "@/utils/mediaTypes";
 import { Checkbox, Container, Group, Switch, TextInput } from "@mantine/core";
 import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 
-interface CreatePostProps {
-  signUpEnabled: boolean;
-}
+interface CreatePostProps extends ShareMeEnv {}
 
 export default function CreatePost({ signUpEnabled }: CreatePostProps) {
   const router = useRouter();

@@ -1,5 +1,6 @@
 import { initPocketBase, PocketBaseProvider } from "@/pocketbase";
 import { UploaderContextProvider } from "@/uploader/context";
+import { ShareMeEnv } from "@/utils/env";
 import { MantineProvider } from "@mantine/core";
 import { Notifications } from "@mantine/notifications";
 import { AppProps } from "next/app";
@@ -10,7 +11,7 @@ import { QueryClient, QueryClientProvider } from "react-query";
 
 const queryClient = new QueryClient();
 
-export default function App({ Component, pageProps }: AppProps) {
+export default function App({ Component, pageProps }: AppProps<ShareMeEnv>) {
   const pbRef = useRef<PocketBase>(initPocketBase(pageProps.pocketBaseUrl));
 
   return (
@@ -21,6 +22,14 @@ export default function App({ Component, pageProps }: AppProps) {
           name="viewport"
           content="minimum-scale=1, initial-scale=1, width=device-width"
         />
+        {pageProps.umami && (
+          <script
+            async
+            defer
+            data-website-id={pageProps.umami.websiteId}
+            src={pageProps.umami.umamiJs}
+          ></script>
+        )}
       </Head>
 
       <MantineProvider

@@ -1,7 +1,7 @@
 import { IncomingMessage, ServerResponse } from "http";
 import PocketBase from "pocketbase";
 
-export const initPocketBase = (host?: string) => {
+export const initPocketBase = (host?: string | null) => {
   return new PocketBase(
     process.env.NODE_ENV === "development"
       ? process.env.NEXT_PUBLIC_POCKETBASE_URL
@@ -38,9 +38,11 @@ export const initPocketBaseServer = async (
   return pb;
 };
 
-export const pocketBaseUrl = <T>(props: T): T & { pocketBaseUrl?: string } => ({
+export const pocketBaseUrl = <T>(
+  props: T
+): T & { pocketBaseUrl: string | null } => ({
   ...props,
-  pocketBaseUrl: process.env.POCKETBASE_URL,
+  pocketBaseUrl: process.env.POCKETBASE_URL ?? null,
 });
 
 export * from "./context";
