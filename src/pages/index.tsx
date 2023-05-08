@@ -1,9 +1,7 @@
-import Dropzone from "@/components/dropzone";
 import Head from "@/components/head";
 import Layout from "@/components/layout";
 import PostTitle from "@/components/postTitle";
 import { useCreatePost } from "@/hooks/useCreatePost";
-import { usePasteFiles } from "@/hooks/usePasteFiles";
 import { usePocketBase } from "@/pocketbase";
 import { useAuth } from "@/pocketbase/auth";
 import { Post } from "@/pocketbase/models";
@@ -50,7 +48,7 @@ export default function Home({ signUpEnabled }: HomeProps) {
       .then((records) => setPosts(records.items));
   }, [pb, setPosts]);
 
-  const { uploading, createPost: _createPost } = useCreatePost({
+  const { createPost: _createPost } = useCreatePost({
     acceptTypes: MEDIA_MIME_TYPE,
   });
 
@@ -72,15 +70,13 @@ export default function Home({ signUpEnabled }: HomeProps) {
       router.push("/posts/" + post.id);
     });
 
-  usePasteFiles({
-    acceptTypes: MEDIA_MIME_TYPE,
-    onPaste: (files) => user && createPost(files),
-  });
-
   return (
     <>
-      <Head pageTitle="Upload" />
-      <Layout signUpEnabled={signUpEnabled}>
+      <Head />
+      <Layout
+        signUpEnabled={signUpEnabled}
+        onFiles={(files) => user && createPost(files)}
+      >
         <Container>
           <Flex sx={{ justifyContent: "space-between" }}>
             <Title order={2}>Latest Posts</Title>
@@ -189,11 +185,6 @@ export default function Home({ signUpEnabled }: HomeProps) {
               ))}
             </Group>
           </ScrollArea>
-          {user && (
-            <Group sx={{ justifyContent: "center" }} align="start">
-              <Dropzone onDrop={createPost} loading={uploading} w="100%" />
-            </Group>
-          )}
         </Container>
       </Layout>
     </>

@@ -2,7 +2,6 @@ import Dropzone from "@/components/dropzone";
 import Head from "@/components/head";
 import Layout from "@/components/layout";
 import { useCreatePost } from "@/hooks/useCreatePost";
-import { usePasteFiles } from "@/hooks/usePasteFiles";
 import { useUploadFiles } from "@/hooks/useUploadFiles";
 import { initPocketBaseServer, usePocketBase } from "@/pocketbase";
 import { useAuth } from "@/pocketbase/auth";
@@ -122,14 +121,6 @@ export default function Post(props: PostProps) {
       router.push("/posts/" + post.id);
     });
 
-  usePasteFiles({
-    acceptTypes: MEDIA_MIME_TYPE,
-    onPaste: (files) =>
-      post?.author === user?.id
-        ? uploadFiles(files)
-        : user?.id && createPost(files),
-  });
-
   useEffect(() => {
     setBlurred(files.map(() => nsfw));
   }, [nsfw, setBlurred, files]);
@@ -230,7 +221,14 @@ export default function Post(props: PostProps) {
         twitterCard="summary_large_image"
       />
 
-      <Layout signUpEnabled={props.signUpEnabled}>
+      <Layout
+        signUpEnabled={props.signUpEnabled}
+        onFiles={(files) =>
+          post?.author === user?.id
+            ? uploadFiles(files)
+            : user?.id && createPost(files)
+        }
+      >
         <Group sx={{ justifyContent: "center" }} align="start">
           <Stack maw="650px" miw="350px" sx={{ flex: 1, flexGrow: 1 }} px="md">
             {userIsAuthor ||
