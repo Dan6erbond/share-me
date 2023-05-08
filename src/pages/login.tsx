@@ -65,10 +65,10 @@ interface LoginForm {
 }
 
 interface LoginProps {
-  signupEnabled: boolean;
+  signUpEnabled: boolean;
 }
 
-function Login({ signupEnabled }: LoginProps) {
+function Login({ signUpEnabled }: LoginProps) {
   const pb = usePocketBase();
   const router = useRouter();
 
@@ -149,7 +149,7 @@ function Login({ signupEnabled }: LoginProps) {
               ))}
               {usernamePasswordEnabled && (
                 <Group sx={{ justifyContent: "space-between" }}>
-                  {signupEnabled && (
+                  {signUpEnabled && (
                     <Anchor component={Link} href="/sign-up">
                       Sign Up
                     </Anchor>

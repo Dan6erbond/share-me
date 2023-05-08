@@ -1,7 +1,6 @@
 import Layout from "@/components/layout";
 import PostCard from "@/components/postCard";
 import { useCreatePost } from "@/hooks/useCreatePost";
-import { usePasteFiles } from "@/hooks/usePasteFiles";
 import { usePocketBase } from "@/pocketbase";
 import { useAuth } from "@/pocketbase/auth";
 import { Post } from "@/pocketbase/models";
@@ -15,10 +14,10 @@ import { useEffect } from "react";
 import { useInfiniteQuery } from "react-query";
 
 interface PostsProps {
-  signupEnabled: boolean;
+  signUpEnabled: boolean;
 }
 
-export default function Posts({ signupEnabled }: PostsProps) {
+export default function Posts({ signUpEnabled }: PostsProps) {
   const router = useRouter();
   const pb = usePocketBase();
   const { user } = useAuth();
@@ -65,11 +64,6 @@ export default function Posts({ signupEnabled }: PostsProps) {
       router.push("/posts/" + post.id);
     });
 
-  usePasteFiles({
-    acceptTypes: MEDIA_MIME_TYPE,
-    onPaste: (files) => user && createPost(files),
-  });
-
   const { ref, entry } = useIntersection();
 
   useEffect(() => {
@@ -81,7 +75,10 @@ export default function Posts({ signupEnabled }: PostsProps) {
   }, [isLoading, hasNextPage, entry, isFetchingNextPage, fetchNextPage]);
 
   return (
-    <Layout signupEnabled={signupEnabled}>
+    <Layout
+      signUpEnabled={signUpEnabled}
+      onFiles={(files) => user && createPost(files)}
+    >
       <Stack align="stretch" maw={450} m="0 auto">
         {data?.pages.map((p) => (
           <>

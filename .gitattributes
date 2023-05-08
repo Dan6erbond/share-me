@@ -1,4 +1,4 @@
-*           text=auto     # auto
+*           text=auto
 *.txt       text
-*.vcproj    text eol=crlf # windows line-endings
-*.sh        text eol=lf   # linux line-endings
+*.vcproj    text eol=crlf
+*.sh        text eol=lf

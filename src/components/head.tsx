@@ -2,7 +2,7 @@ import NextHead from "next/head";
 
 interface HeadProps {
   children?: React.ReactNode;
-  pageTitle: string;
+  pageTitle?: string;
   description?: string;
   url?: string;
   image?: string | null;

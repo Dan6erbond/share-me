@@ -15,13 +15,16 @@ import {
 } from "@mantine/core";
 import { IconCirclePlus, IconLogout } from "@tabler/icons-react";
 import Link from "next/link";
+import { useRouter } from "next/router";
 
 interface HeaderProps {
-  signupEnabled: boolean;
+  signUpEnabled: boolean;
 }
 
-function Header({ signupEnabled }: HeaderProps) {
+function Header({ signUpEnabled }: HeaderProps) {
   const pb = usePocketBase();
+  const router = useRouter();
+
   const { user } = useAuth();
   const { usernamePasswordEnabled } = useAuthMethods();
 
@@ -47,14 +50,14 @@ function Header({ signupEnabled }: HeaderProps) {
           </Title>
         </Anchor>
         <Box sx={{ flexGrow: 1 }} />
-        {user ? (
+        {user && router.asPath !== "/posts/create" ? (
           <Group>
             <Button
               radius="xl"
               variant="gradient"
               size="md"
               component={Link}
-              href="/"
+              href="/posts/create"
               leftIcon={<IconCirclePlus />}
             >
               <MediaQuery smallerThan="sm" styles={{ display: "none" }}>
@@ -79,7 +82,7 @@ function Header({ signupEnabled }: HeaderProps) {
             >
               Login
             </Button>
-            {usernamePasswordEnabled && signupEnabled && (
+            {usernamePasswordEnabled && signUpEnabled && (
               <Button
                 radius="xl"
                 variant="outline"

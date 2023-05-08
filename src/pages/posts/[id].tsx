@@ -2,7 +2,6 @@ import Dropzone from "@/components/dropzone";
 import Head from "@/components/head";
 import Layout from "@/components/layout";
 import { useCreatePost } from "@/hooks/useCreatePost";
-import { usePasteFiles } from "@/hooks/usePasteFiles";
 import { useUploadFiles } from "@/hooks/useUploadFiles";
 import { initPocketBaseServer, usePocketBase } from "@/pocketbase";
 import { useAuth } from "@/pocketbase/auth";
@@ -49,7 +48,7 @@ interface PostProps {
   userIsAuthor: boolean;
   image?: string | null;
   video?: string | null;
-  signupEnabled: boolean;
+  signUpEnabled: boolean;
 }
 
 const queryParams = { expand: "author" };
@@ -121,14 +120,6 @@ export default function Post(props: PostProps) {
 
       router.push("/posts/" + post.id);
     });
-
-  usePasteFiles({
-    acceptTypes: MEDIA_MIME_TYPE,
-    onPaste: (files) =>
-      post?.author === user?.id
-        ? uploadFiles(files)
-        : user?.id && createPost(files),
-  });
 
   useEffect(() => {
     setBlurred(files.map(() => nsfw));
@@ -216,7 +207,9 @@ export default function Post(props: PostProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [post, debouncedTitle, isPublic, nsfw]);
 
-  const postTitle = post?.title || `Post by ${props.postAuthorUsername}`;
+  const postTitle =
+    (nsfw ? "[NSFW] " : "") + post?.title ||
+    `Post by ${props.postAuthorUsername}`;
   const description = `Shared by ${props.postAuthorUsername}`;
 
   return (
@@ -230,7 +223,14 @@ export default function Post(props: PostProps) {
         twitterCard="summary_large_image"
       />
 
-      <Layout signupEnabled={props.signupEnabled}>
+      <Layout
+        signUpEnabled={props.signUpEnabled}
+        onFiles={(files) =>
+          post?.author === user?.id
+            ? uploadFiles(files)
+            : user?.id && createPost(files)
+        }
+      >
         <Group sx={{ justifyContent: "center" }} align="start">
           <Stack maw="650px" miw="350px" sx={{ flex: 1, flexGrow: 1 }} px="md">
             {userIsAuthor ||
