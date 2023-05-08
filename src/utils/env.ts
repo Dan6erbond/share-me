@@ -1,11 +1,14 @@
 import { pocketBaseUrl } from "../pocketbase";
 
-export const withEnv = <T>(
-  props: T
-): T & { signupEnabled: boolean; pocketbaseUrl?: string } =>
+interface ShareMeEnv {
+  signUpEnabled: boolean;
+  pocketbaseUrl?: string;
+}
+
+export const withEnv = <T>(props: T): T & ShareMeEnv =>
   pocketBaseUrl({
     ...props,
-    signupEnabled: process.env.SIGNUP_ENABLED
+    signUpEnabled: process.env.SIGNUP_ENABLED
       ? process.env.SIGNUP_ENABLED === "true"
       : true,
   });
