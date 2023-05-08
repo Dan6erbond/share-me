@@ -50,27 +50,29 @@ function Header({ signUpEnabled }: HeaderProps) {
           </Title>
         </Anchor>
         <Box sx={{ flexGrow: 1 }} />
-        {user && router.asPath !== "/posts/create" ? (
-          <Group>
-            <Button
-              radius="xl"
-              variant="gradient"
-              size="md"
-              component={Link}
-              href="/posts/create"
-              leftIcon={<IconCirclePlus />}
-            >
-              <MediaQuery smallerThan="sm" styles={{ display: "none" }}>
-                <Box>Create Post</Box>
-              </MediaQuery>
-              <MediaQuery largerThan="sm" styles={{ display: "none" }}>
-                <Box>Post</Box>
-              </MediaQuery>
-            </Button>
-            <ActionIcon onClick={() => pb.authStore.clear()}>
-              <IconLogout />
-            </ActionIcon>
-          </Group>
+        {user ? (
+          router.asPath !== "/posts/create" && (
+            <Group>
+              <Button
+                radius="xl"
+                variant="gradient"
+                size="md"
+                component={Link}
+                href="/posts/create"
+                leftIcon={<IconCirclePlus />}
+              >
+                <MediaQuery smallerThan="sm" styles={{ display: "none" }}>
+                  <Box>Create Post</Box>
+                </MediaQuery>
+                <MediaQuery largerThan="sm" styles={{ display: "none" }}>
+                  <Box>Post</Box>
+                </MediaQuery>
+              </Button>
+              <ActionIcon onClick={() => pb.authStore.clear()}>
+                <IconLogout />
+              </ActionIcon>
+            </Group>
+          )
         ) : (
           <Group spacing="sm">
             <Button
