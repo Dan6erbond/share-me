@@ -2,8 +2,8 @@ import { pocketBaseUrl } from "../pocketbase";
 
 export interface ShareMeEnv {
   signUpEnabled: boolean;
-  pocketBaseUrl?: string;
-  umami?: { websiteId: string; umamiJs: string } | null;
+  pocketBaseUrl: string | null;
+  umami: { websiteId: string; umamiJs: string } | null;
 }
 
 export const withEnv = <T>(props: T): T & ShareMeEnv => {

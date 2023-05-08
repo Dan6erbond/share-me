@@ -6,7 +6,7 @@ import { useUploadFiles } from "@/hooks/useUploadFiles";
 import { initPocketBaseServer, usePocketBase } from "@/pocketbase";
 import { useAuth } from "@/pocketbase/auth";
 import { Post, File as ShareMeFile } from "@/pocketbase/models";
-import { withEnv } from "@/utils/env";
+import { ShareMeEnv, withEnv } from "@/utils/env";
 import { MEDIA_MIME_TYPE } from "@/utils/mediaTypes";
 import {
   ActionIcon,
@@ -40,7 +40,7 @@ import { useRouter } from "next/router";
 import { Record } from "pocketbase";
 import { useCallback, useEffect, useState } from "react";
 
-interface PostProps {
+interface PostProps extends ShareMeEnv {
   title: string;
   isPublic: boolean;
   nsfw: boolean;
@@ -48,7 +48,6 @@ interface PostProps {
   userIsAuthor: boolean;
   image?: string | null;
   video?: string | null;
-  signUpEnabled: boolean;
 }
 
 const queryParams = { expand: "author" };

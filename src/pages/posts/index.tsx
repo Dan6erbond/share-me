@@ -4,7 +4,7 @@ import { useCreatePost } from "@/hooks/useCreatePost";
 import { usePocketBase } from "@/pocketbase";
 import { useAuth } from "@/pocketbase/auth";
 import { Post } from "@/pocketbase/models";
-import { withEnv } from "@/utils/env";
+import { ShareMeEnv, withEnv } from "@/utils/env";
 import { MEDIA_MIME_TYPE } from "@/utils/mediaTypes";
 import { Skeleton, Stack, Text } from "@mantine/core";
 import { useIntersection } from "@mantine/hooks";
@@ -13,9 +13,7 @@ import { useRouter } from "next/router";
 import { useEffect } from "react";
 import { useInfiniteQuery } from "react-query";
 
-interface PostsProps {
-  signUpEnabled: boolean;
-}
+interface PostsProps extends ShareMeEnv {}
 
 export default function Posts({ signUpEnabled }: PostsProps) {
   const router = useRouter();

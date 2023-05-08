@@ -5,7 +5,7 @@ import { useCreatePost } from "@/hooks/useCreatePost";
 import { usePocketBase } from "@/pocketbase";
 import { useAuth } from "@/pocketbase/auth";
 import { Post } from "@/pocketbase/models";
-import { withEnv } from "@/utils/env";
+import { ShareMeEnv, withEnv } from "@/utils/env";
 import { MEDIA_MIME_TYPE } from "@/utils/mediaTypes";
 import {
   Anchor,
@@ -27,9 +27,7 @@ import { useRouter } from "next/router";
 import { Record } from "pocketbase";
 import { useEffect, useState } from "react";
 
-interface HomeProps {
-  signUpEnabled: boolean;
-}
+interface HomeProps extends ShareMeEnv {}
 
 export default function Home({ signUpEnabled }: HomeProps) {
   const router = useRouter();
