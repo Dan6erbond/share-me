@@ -10,9 +10,10 @@ export const useAuth = () => {
     pb.authStore.isValid &&
       pb
         .collection("users")
-        .authRefresh()
+        .authRefresh({}, { $autoCancel: false })
         .then((record) => setUser(record.record))
-        .catch(() => {
+        .catch((ex) => {
+          console.error(ex);
           pb.authStore.clear();
           setUser(null);
         });
