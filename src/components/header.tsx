@@ -30,7 +30,7 @@ function Header({ signUpEnabled }: HeaderProps) {
 
   return (
     <MantineHeader height={75} p="md">
-      <Group>
+      <Group h="100%" w="100%">
         <Anchor
           component={Link}
           href="/"
@@ -49,7 +49,7 @@ function Header({ signUpEnabled }: HeaderProps) {
             Share Me
           </Title>
         </Anchor>
-        <Box sx={{ flexGrow: 1 }} />
+        <Box sx={{ flexGrow: 1, width: "auto" }} />
         {user ? (
           router.asPath !== "/posts/create" && (
             <Group>
