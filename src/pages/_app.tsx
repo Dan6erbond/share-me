@@ -5,6 +5,7 @@ import { MantineProvider } from "@mantine/core";
 import { Notifications } from "@mantine/notifications";
 import { AppProps } from "next/app";
 import Head from "next/head";
+import Script from "next/script";
 import PocketBase from "pocketbase";
 import { useRef } from "react";
 import { QueryClient, QueryClientProvider } from "react-query";
@@ -22,15 +23,16 @@ export default function App({ Component, pageProps }: AppProps<ShareMeEnv>) {
           name="viewport"
           content="minimum-scale=1, initial-scale=1, width=device-width"
         />
-        {pageProps.umami && (
-          <script
-            async
-            defer
-            data-website-id={pageProps.umami.websiteId}
-            src={pageProps.umami.umamiJs}
-          ></script>
-        )}
       </Head>
+
+      {pageProps.umami && (
+        <Script
+          async
+          defer
+          data-website-id={pageProps.umami.websiteId}
+          src={pageProps.umami.umamiJs}
+        ></Script>
+      )}
 
       <MantineProvider
         withGlobalStyles
