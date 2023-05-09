@@ -54,11 +54,11 @@ jobs:
         context:
           - "."
           - "server"
-        include:
+        exclude:
           - image: ${{ github.repository }}-frontend
-            context: "."
-          - image: ${{ github.repository }}-server
             context: "server"
+          - image: ${{ github.repository }}-server
+            context: "."
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
