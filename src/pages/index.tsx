@@ -103,8 +103,6 @@ export default function Home({ signUpEnabled }: HomeProps) {
                 <Card
                   key={post.id}
                   p={0}
-                  component={Link}
-                  href={`/posts/${post.id}`}
                   sx={(theme) => ({
                     ":hover": { background: theme.colors.dark[8] },
                     display: "flex",
@@ -127,6 +125,8 @@ export default function Home({ signUpEnabled }: HomeProps) {
                       display: "flex",
                       "&[data-last]": { marginBottom: 0 },
                     }}
+                    component={Link}
+                    href={`/posts/${post.id}`}
                   >
                     {Array.isArray(post.expand.files) && (
                       <Flex
@@ -184,7 +184,7 @@ export default function Home({ signUpEnabled }: HomeProps) {
                           >
                             <Center h="100%" w="100%">
                               <Box>
-                                <Text size="xl">
+                                <Text size="xl" color="white">
                                   {post.expand.files.length - 1} +
                                 </Text>
                               </Box>

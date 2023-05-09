@@ -1,6 +1,7 @@
 import { Post } from "@/pocketbase/models";
 import { getRelativeTime } from "@/utils/relativeTime";
 import {
+  Anchor,
   Avatar,
   Badge,
   Box,
@@ -11,6 +12,7 @@ import {
   Title,
   Tooltip,
 } from "@mantine/core";
+import Link from "next/link";
 import { Record } from "pocketbase";
 
 interface PostTitleProps extends BoxProps {
@@ -31,14 +33,23 @@ function PostTitle({ post, compact, ...props }: PostTitleProps) {
             {getRelativeTime(new Date(), new Date(post.created))}
           </Text>
         </Tooltip>
-        <Group spacing="sm">
-          <Text size="sm">{(post.expand.author as Record).username}</Text>
-          <Avatar radius="xl" size="sm"></Avatar>
-        </Group>
+        <Anchor
+          component={Link}
+          href={`/users/${(post.expand.author as Record).id}`}
+          sx={{ ":hover": { textDecoration: "underline" } }}
+          unstyled
+        >
+          <Group spacing="sm">
+            <Text size="sm">{(post.expand.author as Record).username}</Text>
+            <Avatar radius="xl" size="sm"></Avatar>
+          </Group>
+        </Anchor>
       </Flex>
-      <Title order={4}>
-        {post.title || `Post by ${(post.expand.author as Record).username}`}
-      </Title>
+      <Anchor component={Link} href={`/posts/${post.id}`} unstyled>
+        <Title order={4}>
+          {post.title || `Post by ${(post.expand.author as Record).username}`}
+        </Title>
+      </Anchor>
       {post.nsfw && <Badge color="red">NSFW</Badge>}
     </Box>
   );
