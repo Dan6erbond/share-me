@@ -1,21 +1,40 @@
+import Head from "@/components/head";
 import Layout from "@/components/layout";
 import PostCard from "@/components/postCard";
 import { useCreatePost } from "@/hooks/useCreatePost";
-import { usePocketBase } from "@/pocketbase";
+import { initPocketBaseServer, usePocketBase } from "@/pocketbase";
 import { useAuth } from "@/pocketbase/auth";
 import { Post } from "@/pocketbase/models";
 import { ShareMeEnv, withEnv } from "@/utils/env";
 import { MEDIA_MIME_TYPE } from "@/utils/mediaTypes";
-import { Skeleton, Stack, Text, Title } from "@mantine/core";
+import {
+  Avatar,
+  Card,
+  Group,
+  Skeleton,
+  Stack,
+  Text,
+  Title,
+} from "@mantine/core";
 import { useIntersection } from "@mantine/hooks";
 import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
+import { Record } from "pocketbase";
 import { useEffect } from "react";
 import { useInfiniteQuery, useQuery } from "react-query";
 
-interface PostsProps extends ShareMeEnv {}
+interface PostsProps extends ShareMeEnv {
+  username: string;
+  avatar: string;
+  postsLength: number;
+}
 
-export default function Posts({ signUpEnabled }: PostsProps) {
+export default function Posts({
+  signUpEnabled,
+  postsLength,
+  username,
+  avatar,
+}: PostsProps) {
   const router = useRouter();
 
   const { id } = router.query;
@@ -82,39 +101,106 @@ export default function Posts({ signUpEnabled }: PostsProps) {
   }, [isLoading, hasNextPage, entry, isFetchingNextPage, fetchNextPage]);
 
   return (
-    <Layout
-      signUpEnabled={signUpEnabled}
-      onFiles={(files) => authenticatedUser && createPost(files)}
-    >
-      <Stack align="stretch" maw={450} m="0 auto">
-        {userData && <Title>Posts by {userData.username}</Title>}
-        {data?.pages.map((p) => (
-          <>
-            {p.items.map((p) => (
-              <PostCard key={p.id} post={p} maw="100%" />
-            ))}
-          </>
-        ))}
-        {(isFetchingNextPage || isLoading) &&
-          new Array(10)
-            .fill(null)
-            .map((_, i) => (
-              <Skeleton key={i} height={200} width="100%" maw={400} ref={ref} />
-            ))}
-        {hasNextPage && (
-          <Skeleton height={200} width="100%" maw={400} ref={ref} />
-        )}
-        <Text>
-          Showing {data?.pages.reduce((p, c) => p + c.items.length, 0)} /{" "}
-          {data?.pages[0].totalItems} Posts
-        </Text>
-      </Stack>
-    </Layout>
+    <>
+      <Head pageTitle={username} image={avatar} />
+
+      <Layout
+        signUpEnabled={signUpEnabled}
+        onFiles={(files) => authenticatedUser && createPost(files)}
+      >
+        <Stack align="stretch" maw={450} m="0 auto">
+          {userData && (
+            <Card>
+              <Card.Section bg="dark.8" p="md" pos="relative">
+                <Group>
+                  <Title>{username}</Title>
+                </Group>
+                <Avatar
+                  size="xl"
+                  radius={100}
+                  pos="absolute"
+                  bottom={-40}
+                  right={25}
+                  src={avatar}
+                ></Avatar>
+              </Card.Section>
+              <Card.Section p="md">
+                <Text>
+                  {postsLength} {postsLength > 1 ? "Posts" : "Post"}
+                </Text>
+              </Card.Section>
+            </Card>
+          )}
+          {data?.pages.map((p) => (
+            <>
+              {p.items.map((p) => (
+                <PostCard key={p.id} post={p} maw="100%" />
+              ))}
+            </>
+          ))}
+          {(isFetchingNextPage || isLoading) &&
+            new Array(10)
+              .fill(null)
+              .map((_, i) => (
+                <Skeleton
+                  key={i}
+                  height={200}
+                  width="100%"
+                  maw={400}
+                  ref={ref}
+                />
+              ))}
+          {hasNextPage && (
+            <Skeleton height={200} width="100%" maw={400} ref={ref} />
+          )}
+          <Text>
+            Showing {data?.pages.reduce((p, c) => p + c.items.length, 0)} /{" "}
+            {data?.pages[0].totalItems} Posts
+          </Text>
+        </Stack>
+      </Layout>
+    </>
   );
 }
 
-export const getServerSideProps: GetServerSideProps = async () => {
+export const getServerSideProps: GetServerSideProps<PostsProps> = async ({
+  req,
+  res,
+  query,
+}) => {
+  const pb = await initPocketBaseServer(req, res);
+
+  const { id } = query;
+
+  let user: Record | null = null;
+
+  try {
+    user = await pb.collection("users").getOne(Array.isArray(id) ? id[0] : id!);
+  } catch (ex) {
+    if ((ex as any).response.code === 404) {
+      return { notFound: true };
+    }
+    console.error(ex);
+  }
+
+  if (!user) {
+    return { notFound: true };
+  }
+
+  const avatar = pb.getFileUrl(user, user.avatar, {
+    thumb: "100x100",
+  });
+
+  const userPosts = await pb.collection("posts").getList<Post>(1, 20, {
+    expand: "files,author",
+    sort: "-created",
+    $autoCancel: false,
+    filter: `author.id = "${user.id}"`,
+  });
+
+  const postsLength = userPosts.totalItems;
+
   return {
-    props: withEnv({}),
+    props: withEnv({ avatar, postsLength, username: user.username }),
   };
 };

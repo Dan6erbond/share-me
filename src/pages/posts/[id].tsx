@@ -233,7 +233,7 @@ export default function Post(props: PostProps) {
         <Group sx={{ justifyContent: "center" }} align="start">
           <Stack maw="650px" miw="350px" sx={{ flex: 1, flexGrow: 1 }} px="md">
             {userIsAuthor ||
-              (post && (
+              (post?.expand.author && (
                 <Anchor
                   unstyled
                   component={Link}
@@ -419,11 +419,34 @@ export default function Post(props: PostProps) {
                   )}
                 </CopyButton>
                 {userIsAuthor && (
-                  <Checkbox
-                    label="NSFW"
-                    checked={nsfw}
-                    onChange={(e) => setNsfw(e.target.checked)}
-                  />
+                  <>
+                    <Checkbox
+                      label="NSFW"
+                      checked={nsfw}
+                      onChange={(e) => setNsfw(e.target.checked)}
+                    />
+                    <Button
+                      variant="gradient"
+                      color="red"
+                      sx={(theme) => ({
+                        background: theme.fn.linearGradient(
+                          45,
+                          theme.colors.red[6],
+                          theme.colors.pink[5]
+                        ),
+                      })}
+                      onClick={() => {
+                        post &&
+                          pb
+                            .collection("posts")
+                            .delete(post.id)
+                            .then(() => router.push("/"))
+                            .catch((ex) => console.error(ex));
+                      }}
+                    >
+                      Delete
+                    </Button>
+                  </>
                 )}
               </Stack>
             </Paper>

@@ -2,18 +2,26 @@ import { useAuthMethods } from "@/hooks/useAuthMethods";
 import { usePocketBase } from "@/pocketbase";
 import { useAuth } from "@/pocketbase/auth";
 import {
-  ActionIcon,
   Anchor,
+  Avatar,
   Box,
   Button,
   Group,
   Header as MantineHeader,
   MediaQuery,
+  Menu,
+  Text,
   Title,
+  UnstyledButton,
   em,
   getBreakpointValue,
 } from "@mantine/core";
-import { IconCirclePlus, IconLogout } from "@tabler/icons-react";
+import {
+  IconCaretDown,
+  IconCirclePlus,
+  IconLogout,
+  IconUserCircle,
+} from "@tabler/icons-react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 
@@ -30,7 +38,7 @@ function Header({ signUpEnabled }: HeaderProps) {
 
   return (
     <MantineHeader height={75} p="md">
-      <Group>
+      <Group h="100%" w="100%">
         <Anchor
           component={Link}
           href="/"
@@ -49,30 +57,63 @@ function Header({ signUpEnabled }: HeaderProps) {
             Share Me
           </Title>
         </Anchor>
-        <Box sx={{ flexGrow: 1 }} />
+        <Box sx={{ flexGrow: 1, width: "auto" }} />
         {user ? (
-          router.asPath !== "/posts/create" && (
-            <Group>
-              <Button
-                radius="xl"
-                variant="gradient"
-                size="md"
-                component={Link}
-                href="/posts/create"
-                leftIcon={<IconCirclePlus />}
-              >
-                <MediaQuery smallerThan="sm" styles={{ display: "none" }}>
-                  <Box>Create Post</Box>
-                </MediaQuery>
-                <MediaQuery largerThan="sm" styles={{ display: "none" }}>
+          <>
+            {router.asPath !== "/posts/create" && (
+              <Group>
+                <Button
+                  radius="xl"
+                  variant="gradient"
+                  size="md"
+                  component={Link}
+                  href="/posts/create"
+                  leftIcon={<IconCirclePlus />}
+                >
                   <Box>Post</Box>
-                </MediaQuery>
-              </Button>
-              <ActionIcon onClick={() => pb.authStore.clear()}>
-                <IconLogout />
-              </ActionIcon>
-            </Group>
-          )
+                </Button>
+              </Group>
+            )}
+            <Menu shadow="md" position="bottom-end">
+              <Menu.Target>
+                <UnstyledButton
+                  sx={(theme) => ({
+                    ":hover": {
+                      background: theme.colors.dark[4],
+                      borderRadius: theme.radius.md,
+                    },
+                  })}
+                  pr="sm"
+                  py={2}
+                >
+                  <Group>
+                    <Avatar radius="xl"></Avatar>
+                    <MediaQuery smallerThan="md" styles={{ display: "none" }}>
+                      <Text>{user.username}</Text>
+                    </MediaQuery>
+                    <IconCaretDown />
+                  </Group>
+                </UnstyledButton>
+              </Menu.Target>
+
+              <Menu.Dropdown>
+                <Menu.Item
+                  icon={<IconUserCircle />}
+                  component={Link}
+                  href={`/users/${user.id}`}
+                >
+                  Profile
+                </Menu.Item>
+                <Menu.Divider />
+                <Menu.Item
+                  icon={<IconLogout />}
+                  onClick={() => pb.authStore.clear()}
+                >
+                  Log Out
+                </Menu.Item>
+              </Menu.Dropdown>
+            </Menu>
+          </>
         ) : (
           <Group spacing="sm">
             <Button
