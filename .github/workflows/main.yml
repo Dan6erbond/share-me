@@ -40,6 +40,9 @@ jobs:
           tag_name: ${{ steps.release.outputs.version }}
   build-and-push:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     needs:
       - release
     strategy:
