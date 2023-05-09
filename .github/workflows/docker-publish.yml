@@ -18,8 +18,6 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME_FRONTEND: ${{ github.repository }}-frontend
-  IMAGE_NAME_SERVER: ${{ github.repository }}-server
 
 jobs:
   setup:
@@ -49,15 +47,15 @@ jobs:
       fail-fast: false
       matrix:
         image:
-          - ${{ env.IMAGE_NAME_FRONTEND }}
-          - ${{ env.IMAGE_NAME_SERVER }}
+          - ${{ github.repository }}-frontend
+          - ${{ github.repository }}-server
         context:
           - "."
           - "server"
         include:
-          - image: ${{ env.IMAGE_NAME_FRONTEND }}
+          - image: ${{ github.repository }}-frontend
             context: "."
-          - image: ${{ env.IMAGE_NAME_SERVER }}
+          - image: ${{ github.repository }}-server
             context: "server"
     steps:
       - name: Extract metadata (tags, labels) for Docker
