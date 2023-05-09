@@ -233,7 +233,7 @@ export default function Post(props: PostProps) {
         <Group sx={{ justifyContent: "center" }} align="start">
           <Stack maw="650px" miw="350px" sx={{ flex: 1, flexGrow: 1 }} px="md">
             {userIsAuthor ||
-              (post && (
+              (post?.expand.author && (
                 <Anchor
                   unstyled
                   component={Link}
