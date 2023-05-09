@@ -9,6 +9,8 @@ import { ShareMeEnv, withEnv } from "@/utils/env";
 import { MEDIA_MIME_TYPE } from "@/utils/mediaTypes";
 import {
   Avatar,
+  Box,
+  Button,
   Card,
   Group,
   Skeleton,
@@ -114,6 +116,11 @@ export default function Posts({
               <Card.Section bg="dark.8" p="md" pos="relative">
                 <Group>
                   <Title>{username}</Title>
+                  <Box w={150}>
+                    <Button variant="light" radius="xl" size="sm">
+                      Follow
+                    </Button>
+                  </Box>
                 </Group>
                 <Avatar
                   size="xl"
