@@ -37,14 +37,16 @@ jobs:
           body_path: GITHUB_CHANGELOG.md
           tag_name: ${{ steps.release.outputs.version }}
       - name: Log in to the Container registry
-        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+        uses: docker/login-action@v2
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GH_PAT }}
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
       - name: Extract metadata (tags, labels) for Docker
         id: meta-frontend
-        uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
+        uses: docker/metadata-action@v4
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}
       - name: Lowercase package
@@ -58,15 +60,16 @@ jobs:
         with:
           string: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}:latest
       - name: Build and push frontend Docker image
-        uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
+        uses: docker/build-push-action@v4
         with:
           context: .
+          platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ steps.tags1-frontend.outputs.lowercase }},${{ steps.tags2-frontend.outputs.lowercase }}
           labels: ${{ steps.meta-frontend.outputs.labels }}
       - name: Extract metadata (tags, labels) for Docker
         id: meta-server
-        uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
+        uses: docker/metadata-action@v4
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_SERVER }}
       - name: Lowercase package
@@ -80,9 +83,10 @@ jobs:
         with:
           string: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_SERVER }}:latest
       - name: Build and push server Docker image
-        uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
+        uses: docker/build-push-action@v4
         with:
           context: server
+          platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ steps.tags1-server.outputs.lowercase }},${{ steps.tags2-server.outputs.lowercase }}
           labels: ${{ steps.meta-server.outputs.labels }}
