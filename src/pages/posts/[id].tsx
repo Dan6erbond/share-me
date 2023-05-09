@@ -419,11 +419,34 @@ export default function Post(props: PostProps) {
                   )}
                 </CopyButton>
                 {userIsAuthor && (
-                  <Checkbox
-                    label="NSFW"
-                    checked={nsfw}
-                    onChange={(e) => setNsfw(e.target.checked)}
-                  />
+                  <>
+                    <Checkbox
+                      label="NSFW"
+                      checked={nsfw}
+                      onChange={(e) => setNsfw(e.target.checked)}
+                    />
+                    <Button
+                      variant="gradient"
+                      color="red"
+                      sx={(theme) => ({
+                        background: theme.fn.linearGradient(
+                          45,
+                          theme.colors.red[6],
+                          theme.colors.pink[5]
+                        ),
+                      })}
+                      onClick={() => {
+                        post &&
+                          pb
+                            .collection("posts")
+                            .delete(post.id)
+                            .then(() => router.push("/"))
+                            .catch((ex) => console.error(ex));
+                      }}
+                    >
+                      Delete
+                    </Button>
+                  </>
                 )}
               </Stack>
             </Paper>
