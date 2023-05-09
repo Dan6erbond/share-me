@@ -16,6 +16,8 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.release.outputs.version }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -36,6 +38,27 @@ jobs:
         with:
           body_path: GITHUB_CHANGELOG.md
           tag_name: ${{ steps.release.outputs.version }}
+  build-and-push:
+    runs-on: ubuntu-latest
+    needs:
+      - release
+    strategy:
+      fail-fast: false
+      matrix:
+        image:
+          - ${{ github.repository }}-frontend
+          - ${{ github.repository }}-server
+        context:
+          - "."
+          - "server"
+        include:
+          - image: ${{ github.repository }}-frontend
+            context: "."
+          - image: ${{ github.repository }}-server
+            context: "server"
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
       - name: Log in to the Container registry
         uses: docker/login-action@v2
         with:
@@ -47,48 +70,25 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
       - name: Extract metadata (tags, labels) for Docker
-        id: meta-frontend
+        id: meta
         uses: docker/metadata-action@v4
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}
-      - name: Lowercase package
-        id: tags1-frontend
+          images: ${{ env.REGISTRY }}/${{ matrix.image }}
+      - name: Lowercase package (version)
+        id: tags1
         uses: ASzc/change-string-case-action@v1
         with:
-          string: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}:${{ steps.release.outputs.version }}
-      - name: Lowercase package
-        id: tags2-frontend
+          string: ${{ env.REGISTRY }}/${{ matrix.image }}:${{ needs.release.outputs.version }}
+      - name: Lowercase package (latest)
+        id: tags2
         uses: ASzc/change-string-case-action@v1
         with:
-          string: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}:latest
-      - name: Build and push frontend Docker image
+          string: ${{ env.REGISTRY }}/${{ matrix.image }}:latest
+      - name: Build and push Docker image
         uses: docker/build-push-action@v4
         with:
-          context: .
+          context: ${{ matrix.context }}
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: ${{ steps.tags1-frontend.outputs.lowercase }},${{ steps.tags2-frontend.outputs.lowercase }}
-          labels: ${{ steps.meta-frontend.outputs.labels }}
-      - name: Extract metadata (tags, labels) for Docker
-        id: meta-server
-        uses: docker/metadata-action@v4
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_SERVER }}
-      - name: Lowercase package
-        id: tags1-server
-        uses: ASzc/change-string-case-action@v1
-        with:
-          string: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_SERVER }}:${{ steps.release.outputs.version }}
-      - name: Lowercase package
-        id: tags2-server
-        uses: ASzc/change-string-case-action@v1
-        with:
-          string: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_SERVER }}:latest
-      - name: Build and push server Docker image
-        uses: docker/build-push-action@v4
-        with:
-          context: server
-          platforms: linux/amd64,linux/arm64
-          push: true
-          tags: ${{ steps.tags1-server.outputs.lowercase }},${{ steps.tags2-server.outputs.lowercase }}
-          labels: ${{ steps.meta-server.outputs.labels }}
+          tags: ${{ steps.tags1.outputs.lowercase }},${{ steps.tags2.outputs.lowercase }}
+          labels: ${{ steps.meta.outputs.labels }}
