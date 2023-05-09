@@ -227,9 +227,10 @@ function Layout({ children, signUpEnabled, onFiles }: LayoutProps) {
           sx={(theme) => ({
             background: theme.fn.linearGradient(
               170,
-              theme.fn.rgba(theme.colors.blue[3], 0.7),
-              theme.fn.rgba(theme.colors.blue[5], 0.7)
+              theme.fn.rgba(theme.colors.blue[3], 0.5),
+              theme.fn.rgba(theme.colors.blue[5], 0.5)
             ),
+            backdropFilter: "blur(2px)",
             zIndex: 1000,
             pointerEvents: "none",
           })}
