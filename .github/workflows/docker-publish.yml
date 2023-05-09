@@ -18,45 +18,47 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME_FRONTEND: ${{ github.repository }}-frontend
-  IMAGE_NAME_SERVER: ${{ github.repository }}-server
 
 jobs:
-  build-and-push-image:
+  build-and-push:
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        image:
+          - ${{ github.repository }}-frontend
+          - ${{ github.repository }}-server
+        include:
+          - image: ${{ github.repository }}-frontend
+            context: "."
+          - image: ${{ github.repository }}-server
+            context: "server"
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
       - name: Log in to the Container registry
-        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+        uses: docker/login-action@v2
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GH_PAT }}
-      - name: Extract frontend metadata (tags, labels) for Docker
-        id: meta-frontend
-        uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v4
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}
-      - name: Build and push frontend Docker image
-        uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
+          images: ${{ env.REGISTRY }}/${{ matrix.image }}
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
         with:
-          context: .
+          context: ${{ matrix.context }}
+          platforms: linux/amd64,linux/arm64
           push: true
-          tags: ${{ steps.meta-frontend.outputs.tags }}
-          labels: ${{ steps.meta-frontend.outputs.labels }}
-      - name: Extract server metadata (tags, labels) for Docker
-        id: meta-server
-        uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_SERVER }}
-      - name: Build and push server Docker image
-        uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
-        with:
-          context: server
-          push: true
-          tags: ${{ steps.meta-server.outputs.tags }}
-          labels: ${{ steps.meta-server.outputs.labels }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
