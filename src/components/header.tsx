@@ -265,17 +265,11 @@ function Header({ signUpEnabled }: HeaderProps) {
                           borderRadius: theme.radius.md,
                         },
                       })}
-                      pr="sm"
-                      py={2}
+                      p={8}
                     >
                       <Group>
                         <UserAvatar user={user as Record | null} />
-                        <MediaQuery
-                          smallerThan="md"
-                          styles={{ display: "none" }}
-                        >
-                          <Text>{user.username}</Text>
-                        </MediaQuery>
+                        <Text>{user.username}</Text>
                         <IconCaretDown />
                       </Group>
                     </UnstyledButton>
