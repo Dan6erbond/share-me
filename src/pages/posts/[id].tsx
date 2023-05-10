@@ -1,6 +1,7 @@
 import Dropzone from "@/components/dropzone";
 import Head from "@/components/head";
 import Layout from "@/components/layout";
+import UserAvatar from "@/components/userAvatar";
 import { useCreatePost } from "@/hooks/useCreatePost";
 import { useUploadFiles } from "@/hooks/useUploadFiles";
 import { initPocketBaseServer, usePocketBase } from "@/pocketbase";
@@ -11,7 +12,6 @@ import { MEDIA_MIME_TYPE } from "@/utils/mediaTypes";
 import {
   ActionIcon,
   Anchor,
-  Avatar,
   Box,
   Button,
   Checkbox,
@@ -243,7 +243,7 @@ export default function Post(props: PostProps) {
                     <Text size="sm">
                       {(post.expand.author as Record).username}
                     </Text>
-                    <Avatar radius="xl" size="sm"></Avatar>
+                    <UserAvatar user={post.expand.author as Record | null} />
                   </Group>
                 </Anchor>
               ))}

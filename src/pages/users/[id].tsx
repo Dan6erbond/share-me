@@ -1,21 +1,14 @@
 import Head from "@/components/head";
 import Layout from "@/components/layout";
 import PostCard from "@/components/postCard";
+import UserAvatar from "@/components/userAvatar";
 import { useCreatePost } from "@/hooks/useCreatePost";
 import { initPocketBaseServer, usePocketBase } from "@/pocketbase";
 import { useAuth } from "@/pocketbase/auth";
 import { Post } from "@/pocketbase/models";
 import { ShareMeEnv, withEnv } from "@/utils/env";
 import { MEDIA_MIME_TYPE } from "@/utils/mediaTypes";
-import {
-  Avatar,
-  Card,
-  Group,
-  Skeleton,
-  Stack,
-  Text,
-  Title,
-} from "@mantine/core";
+import { Card, Group, Skeleton, Stack, Text, Title } from "@mantine/core";
 import { useIntersection } from "@mantine/hooks";
 import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
@@ -115,14 +108,14 @@ export default function Posts({
                 <Group>
                   <Title>{username}</Title>
                 </Group>
-                <Avatar
+                <UserAvatar
+                  user={userData}
                   size="xl"
                   radius={100}
                   pos="absolute"
                   bottom={-40}
                   right={25}
-                  src={avatar}
-                ></Avatar>
+                />
               </Card.Section>
               <Card.Section p="md">
                 <Text>
