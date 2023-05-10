@@ -1,18 +1,46 @@
 package meilisearch
 
 import (
+	"log"
+
 	"github.com/meilisearch/meilisearch-go"
 	"github.com/pocketbase/pocketbase"
 	"github.com/spf13/cobra"
 )
 
 func RegisterCommands(app *pocketbase.PocketBase, client *meilisearch.Client) {
+	searchCmd := &cobra.Command{
+		Use: "search",
+		Run: func(command *cobra.Command, args []string) {
+			print("Runs commands to interact with MeiliSearch")
+		},
+	}
+
+	searchCmd.AddCommand(&cobra.Command{
+		Use: "key",
+		Run: func(command *cobra.Command, args []string) {
+			key, err := GetReadOnlyKey(client)
+
+			if err != nil {
+				log.Println("Error retrieving key:", err)
+			}
+
+			if key != "" {
+				log.Println("MeiliSearch read-only key:", key)
+			} else {
+				log.Println("No read-only key was found")
+			}
+		},
+	})
+
 	indexCmd := &cobra.Command{
 		Use: "index",
 		Run: func(command *cobra.Command, args []string) {
-			print("Runs commands to interact with the Meilisearch index")
+			print("Runs commands to interact with MeiliSearch")
 		},
 	}
+
+	searchCmd.AddCommand(indexCmd)
 
 	indexCmd.AddCommand(&cobra.Command{
 		Use: "clear",
@@ -47,5 +75,5 @@ func RegisterCommands(app *pocketbase.PocketBase, client *meilisearch.Client) {
 		},
 	})
 
-	app.RootCmd.AddCommand(indexCmd)
+	app.RootCmd.AddCommand(searchCmd)
 }
