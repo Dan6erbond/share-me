@@ -22,3 +22,6 @@ go.work
 
 # pocketbase
 pb_data
+
+# custom
+.env

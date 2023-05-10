@@ -1,0 +1,13 @@
+version: '3.9'
+
+services:
+  meilisearch:
+    image: 'getmeili/meilisearch:v1.1'
+    volumes:
+      - './meili_data:/meili_data'
+    environment:
+      - MEILI_MASTER_KEY=$MEILI_MASTER_KEY
+    ports:
+      - '7700:7700'
+    tty: true
+    stdin_open: true

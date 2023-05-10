@@ -18,6 +18,7 @@ import {
   Image,
   ScrollArea,
   Text,
+  TextInput,
   Title,
 } from "@mantine/core";
 import { IMAGE_MIME_TYPE } from "@mantine/dropzone";
@@ -67,11 +68,25 @@ export default function Home({ signUpEnabled }: HomeProps) {
   return (
     <>
       <Head />
+
       <Layout
         signUpEnabled={signUpEnabled}
         onFiles={(files) => user && createPost(files)}
       >
         <Container>
+          <Box p="lg" mb="md">
+            <form action="search" method="get">
+              <TextInput
+                id="query"
+                name="query"
+                placeholder="Search"
+                size="lg"
+                radius="xl"
+                variant="filled"
+              />
+            </form>
+          </Box>
+
           <Flex sx={{ justifyContent: "space-between" }}>
             <Title order={2}>Latest Posts</Title>
             <Anchor component={Link} href="/posts">
