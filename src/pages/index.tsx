@@ -26,7 +26,7 @@ import { GetServerSideProps } from "next";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { Record } from "pocketbase";
-import { useEffect, useState } from "react";
+import { useQuery } from "react-query";
 
 interface HomeProps extends ShareMeEnv {}
 
@@ -35,17 +35,13 @@ export default function Home({ signUpEnabled }: HomeProps) {
   const pb = usePocketBase();
   const { user } = useAuth();
 
-  const [posts, setPosts] = useState<Post[]>([]);
-
-  useEffect(() => {
-    pb.collection("posts")
-      .getList<Post>(1, 10, {
-        expand: "files,author",
-        sort: "-created",
-        $autoCancel: false,
-      })
-      .then((records) => setPosts(records.items));
-  }, [pb, setPosts]);
+  const { data: latestPosts } = useQuery(["latestPosts"], () =>
+    pb.collection("posts").getList<Post>(1, 10, {
+      expand: "files,author",
+      sort: "-created",
+      $autoCancel: false,
+    })
+  );
 
   const { createPost: _createPost } = useCreatePost({
     acceptTypes: MEDIA_MIME_TYPE,
@@ -99,7 +95,7 @@ export default function Home({ signUpEnabled }: HomeProps) {
           </Flex>
           <ScrollArea mb="lg" py="md">
             <Group sx={{ flexWrap: "nowrap", alignItems: "stretch" }}>
-              {posts.map((post) => (
+              {latestPosts?.items.map((post) => (
                 <Card
                   key={post.id}
                   p={0}

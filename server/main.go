@@ -137,6 +137,20 @@ func main() {
 		return nil
 	})
 
+	app.OnRecordAfterDeleteRequest("posts", "delete").Add(func(e *core.RecordDeleteEvent) error {
+		if e.Record.Collection().Name != "posts" {
+			return nil
+		}
+
+		files, _ := app.Dao().FindRecordsByIds("files", e.Record.GetStringSlice("files"))
+
+		for _, f := range files {
+			_ = app.Dao().DeleteRecord(f)
+		}
+
+		return nil
+	})
+
 	if err := app.Start(); err != nil {
 		log.Fatal(err)
 	}

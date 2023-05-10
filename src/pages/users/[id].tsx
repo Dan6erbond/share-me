@@ -1,6 +1,7 @@
 import Head from "@/components/head";
 import Layout from "@/components/layout";
 import PostCard from "@/components/postCard";
+import UserAvatar from "@/components/userAvatar";
 import { useCreatePost } from "@/hooks/useCreatePost";
 import { initPocketBaseServer, usePocketBase } from "@/pocketbase";
 import { useAuth } from "@/pocketbase/auth";
@@ -8,7 +9,8 @@ import { Post } from "@/pocketbase/models";
 import { ShareMeEnv, withEnv } from "@/utils/env";
 import { MEDIA_MIME_TYPE } from "@/utils/mediaTypes";
 import {
-  Avatar,
+  ActionIcon,
+  Box,
   Card,
   Group,
   Skeleton,
@@ -16,12 +18,14 @@ import {
   Text,
   Title,
 } from "@mantine/core";
+import { IMAGE_MIME_TYPE } from "@mantine/dropzone";
 import { useIntersection } from "@mantine/hooks";
+import { IconCameraPlus } from "@tabler/icons-react";
 import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
 import { Record } from "pocketbase";
-import { useEffect } from "react";
-import { useInfiniteQuery, useQuery } from "react-query";
+import { ChangeEvent, useEffect, useRef } from "react";
+import { useInfiniteQuery, useQuery, useQueryClient } from "react-query";
 
 interface PostsProps extends ShareMeEnv {
   username: string;
@@ -36,13 +40,16 @@ export default function Posts({
   avatar,
 }: PostsProps) {
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const { id } = router.query;
 
   const pb = usePocketBase();
   const { user: authenticatedUser } = useAuth();
 
-  const { data: userData } = useQuery(["user", id], () =>
+  const avatarInputRef = useRef<HTMLInputElement>(null);
+
+  const { data: userData } = useQuery(["users", id], () =>
     pb.collection("users").getOne(Array.isArray(id) ? id[0] : id!)
   );
 
@@ -100,6 +107,18 @@ export default function Posts({
       fetchNextPage();
   }, [isLoading, hasNextPage, entry, isFetchingNextPage, fetchNextPage]);
 
+  const onAvatarSelect = (ev: ChangeEvent<HTMLInputElement>) => {
+    if (!ev.target.files || ev.target.files.length < 1) return;
+    if (userData?.id !== authenticatedUser?.id) return;
+    const formData = new FormData();
+    formData.append("avatar", ev.target.files[0]);
+    pb.collection("users")
+      .update(userData!.id, formData, {
+        $autoCancel: false,
+      })
+      .then((record) => queryClient.invalidateQueries(["users", record.id]));
+  };
+
   return (
     <>
       <Head pageTitle={username} image={avatar} />
@@ -115,14 +134,31 @@ export default function Posts({
                 <Group>
                   <Title>{username}</Title>
                 </Group>
-                <Avatar
-                  size="xl"
-                  radius={100}
+                <Box
                   pos="absolute"
                   bottom={-40}
                   right={25}
-                  src={avatar}
-                ></Avatar>
+                  onClick={() =>
+                    authenticatedUser?.id === userData.id &&
+                    avatarInputRef.current?.click()
+                  }
+                >
+                  <UserAvatar user={userData} size="xl" radius={100} />
+                  {authenticatedUser?.id === userData.id && (
+                    <>
+                      <ActionIcon pos="absolute" bottom={0} right={0}>
+                        <IconCameraPlus />
+                      </ActionIcon>
+                      <input
+                        type="file"
+                        accept={IMAGE_MIME_TYPE.join(",")}
+                        style={{ display: "none" }}
+                        ref={avatarInputRef}
+                        onChange={onAvatarSelect}
+                      />
+                    </>
+                  )}
+                </Box>
               </Card.Section>
               <Card.Section p="md">
                 <Text>
