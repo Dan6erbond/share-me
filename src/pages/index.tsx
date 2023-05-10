@@ -30,7 +30,7 @@ import { useQuery } from "react-query";
 
 interface HomeProps extends ShareMeEnv {}
 
-export default function Home({ signUpEnabled }: HomeProps) {
+export default function Home({ signUpEnabled, meiliSearch }: HomeProps) {
   const router = useRouter();
   const pb = usePocketBase();
   const { user } = useAuth();
@@ -74,18 +74,20 @@ export default function Home({ signUpEnabled }: HomeProps) {
         onFiles={(files) => user && createPost(files)}
       >
         <Container>
-          <Box p="lg" mb="md">
-            <form action="search" method="get">
-              <TextInput
-                id="query"
-                name="query"
-                placeholder="Search"
-                size="lg"
-                radius="xl"
-                variant="filled"
-              />
-            </form>
-          </Box>
+          {meiliSearch && (
+            <Box p="lg" mb="md">
+              <form action="search" method="get">
+                <TextInput
+                  id="query"
+                  name="query"
+                  placeholder="Search"
+                  size="lg"
+                  radius="xl"
+                  variant="filled"
+                />
+              </form>
+            </Box>
+          )}
 
           <Flex sx={{ justifyContent: "space-between" }}>
             <Title order={2}>Latest Posts</Title>
