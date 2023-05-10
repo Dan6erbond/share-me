@@ -23,10 +23,17 @@ func main() {
 
 	if os.Getenv("MEILISEARCH_HOST") != "" && os.Getenv("MEILISEARCH_ADMIN_API_KEY") != "" {
 		app.Settings()
-		if app.IsDebug() {
-			log.Println("Configuring MeiliSearch")
-		}
 		client := meilisearch.NewClient(os.Getenv("MEILISEARCH_HOST"), os.Getenv("MEILISEARCH_ADMIN_API_KEY"))
+		key, _ := meilisearch.GetReadOnlyKey(client)
+		if key != "" {
+			app.OnBeforeServe().Add(func(e *core.ServeEvent) error {
+				if app.IsDebug() {
+					log.Println("MeiliSearch configured")
+				}
+				log.Println("MeiliSearch read-only key:", key)
+				return nil
+			})
+		}
 		meilisearch.RegisterCommands(app, client)
 		meilisearch.RegisterHooks(app, client)
 	}
