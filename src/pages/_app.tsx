@@ -1,3 +1,5 @@
+import { initMeiliSearch } from "@/meilisearch";
+import { MeiliSearchProvider } from "@/meilisearch/context";
 import { initPocketBase, PocketBaseProvider } from "@/pocketbase";
 import { UploaderContextProvider } from "@/uploader/context";
 import { ShareMeEnv } from "@/utils/env";
@@ -45,9 +47,20 @@ export default function App({ Component, pageProps }: AppProps<ShareMeEnv>) {
         <Notifications />
         <QueryClientProvider client={queryClient}>
           <PocketBaseProvider client={pbRef.current}>
-            <UploaderContextProvider pocketBase={pbRef.current}>
-              <Component {...pageProps} />
-            </UploaderContextProvider>
+            <MeiliSearchProvider
+              init={() =>
+                pageProps.meiliSearch
+                  ? initMeiliSearch(
+                      pageProps.meiliSearch.host,
+                      pageProps.meiliSearch.apiKey
+                    )
+                  : undefined
+              }
+            >
+              <UploaderContextProvider pocketBase={pbRef.current}>
+                <Component {...pageProps} />
+              </UploaderContextProvider>
+            </MeiliSearchProvider>
           </PocketBaseProvider>
         </QueryClientProvider>
       </MantineProvider>

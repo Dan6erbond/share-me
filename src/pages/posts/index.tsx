@@ -89,12 +89,12 @@ export default function Posts({ signUpEnabled }: PostsProps) {
           new Array(10)
             .fill(null)
             .map((_, i) => (
-              <Skeleton key={i} height={200} width="100%" maw={400} ref={ref} />
+              <Skeleton key={i} height={200} width="100%" maw={400} />
             ))}
         {hasNextPage && (
           <Skeleton height={200} width="100%" maw={400} ref={ref} />
         )}
-        <Text>
+        <Text align="center">
           Showing {data?.pages.reduce((p, c) => p + c.items.length, 0)} /{" "}
           {data?.pages[0].totalItems} Posts
         </Text>
