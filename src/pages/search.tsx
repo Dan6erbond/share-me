@@ -78,8 +78,14 @@ function Search({ signUpEnabled }: SearchProps) {
 
 export default Search;
 
-export const getServerSideProps: GetServerSideProps<
-  SearchProps
-> = async () => ({
-  props: withEnv({}),
-});
+export const getServerSideProps: GetServerSideProps<SearchProps> = async () => {
+  const props = withEnv({});
+
+  if (!props.meiliSearch) {
+    return { notFound: true };
+  }
+
+  return {
+    props,
+  };
+};
