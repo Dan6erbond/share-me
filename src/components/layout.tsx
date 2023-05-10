@@ -147,6 +147,7 @@ function Layout({ children, signUpEnabled, onFiles }: LayoutProps) {
             pos="fixed"
             bottom={16}
             right={16}
+            sx={{ zIndex: 1000 }}
           >
             <IconCirclePlus size={26} />
           </ActionIcon>
