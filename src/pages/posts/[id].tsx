@@ -207,7 +207,7 @@ export default function Post(props: PostProps) {
   }, [post, debouncedTitle, isPublic, nsfw]);
 
   const postTitle =
-    (nsfw ? "[NSFW] " : "") + post?.title ||
+    (nsfw ? "[NSFW] " : "") + title ||
     `Post by ${props.postAuthorUsername}`;
   const description = `Shared by ${props.postAuthorUsername}`;
 
