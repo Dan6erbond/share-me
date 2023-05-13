@@ -95,7 +95,7 @@ export default function Post(props: PostProps) {
         Array.from(
           new Set(
             f.reduce(
-              (tags, f) => [...tags, ...(f.tagsSuggestions || [])],
+              (tags, f) => [...tags, ...(f.tagsSuggestions ?? [])],
               [] as string[]
             )
           )
