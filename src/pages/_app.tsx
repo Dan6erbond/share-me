@@ -1,7 +1,6 @@
 import { initMeiliSearch } from "@/meilisearch";
 import { MeiliSearchProvider } from "@/meilisearch/context";
 import { initPocketBase, PocketBaseProvider } from "@/pocketbase";
-import { UploaderContextProvider } from "@/uploader/context";
 import { ShareMeEnv } from "@/utils/env";
 import { MantineProvider } from "@mantine/core";
 import { Notifications } from "@mantine/notifications";
@@ -57,9 +56,7 @@ export default function App({ Component, pageProps }: AppProps<ShareMeEnv>) {
                   : undefined
               }
             >
-              <UploaderContextProvider pocketBase={pbRef.current}>
-                <Component {...pageProps} />
-              </UploaderContextProvider>
+              <Component {...pageProps} />
             </MeiliSearchProvider>
           </PocketBaseProvider>
         </QueryClientProvider>
