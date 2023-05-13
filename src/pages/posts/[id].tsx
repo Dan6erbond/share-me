@@ -12,6 +12,7 @@ import { MEDIA_MIME_TYPE } from "@/utils/mediaTypes";
 import {
   ActionIcon,
   Anchor,
+  Badge,
   Box,
   Button,
   Checkbox,
@@ -20,6 +21,7 @@ import {
   Image,
   Loader,
   MediaQuery,
+  MultiSelect,
   Paper,
   Stack,
   Switch,
@@ -32,6 +34,7 @@ import { useDebouncedValue } from "@mantine/hooks";
 import {
   IconClipboardCheck,
   IconClipboardCopy,
+  IconPlus,
   IconTrash,
 } from "@tabler/icons-react";
 import { GetServerSideProps } from "next";
@@ -39,6 +42,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { Record } from "pocketbase";
 import { useCallback, useEffect, useState } from "react";
+import CommaMultiSelect from "../../components/commaMultiSelect";
 
 interface PostProps extends ShareMeEnv {
   title: string;
@@ -60,18 +64,46 @@ export default function Post(props: PostProps) {
 
   const [post, setPost] = useState<Post | null>();
   const [userIsAuthor, setUserIsAuthor] = useState(props.userIsAuthor);
-  const [files, setFiles] = useState<ShareMeFile[]>([]);
+  const [files, _setFiles] = useState<ShareMeFile[]>([]);
   const [title, setTitle] = useState(props.title);
   const [isPublic, setIsPublic] = useState(props.isPublic);
   const [nsfw, setNsfw] = useState(props.nsfw);
+  const [tags, setTags] = useState<string[]>([]);
 
   const [blurred, setBlurred] = useState<boolean[]>([]);
+  const [tagsSuggestions, setTagsSuggestions] = useState<string[]>([]);
 
   const [debouncedTitle] = useDebouncedValue(title, 200, { leading: true });
 
   const { uploading, uploadFiles: _uploadFiles } = useUploadFiles({
     acceptTypes: MEDIA_MIME_TYPE,
   });
+
+  const setFiles = useCallback(
+    (setter: ShareMeFile[] | ((files: ShareMeFile[]) => ShareMeFile[])) => {
+      let f: ShareMeFile[];
+
+      if (typeof setter === "function") {
+        f = setter(files);
+      } else {
+        f = setter;
+      }
+
+      _setFiles(f);
+
+      setTagsSuggestions(
+        Array.from(
+          new Set(
+            f.reduce(
+              (tags, f) => [...tags, ...(f.tagsSuggestions || [])],
+              [] as string[]
+            )
+          )
+        )
+      );
+    },
+    [_setFiles, setTagsSuggestions, files]
+  );
 
   const uploadFiles = (f: File[]) =>
     _uploadFiles(
@@ -132,8 +164,18 @@ export default function Post(props: PostProps) {
       setIsPublic(record.public);
       setNsfw(record.nsfw);
       setUserIsAuthor(user?.id === record.author);
+      setTags(record.tags ?? []);
     },
-    [setPost, setFiles, setTitle, setIsPublic, setNsfw, setUserIsAuthor, user]
+    [
+      setPost,
+      setFiles,
+      setTitle,
+      setIsPublic,
+      setNsfw,
+      setUserIsAuthor,
+      setTags,
+      user,
+    ]
   );
 
   const fetchPost = useCallback(async () => {
@@ -186,7 +228,9 @@ export default function Post(props: PostProps) {
     if (
       debouncedTitle == post.title &&
       isPublic === post.public &&
-      nsfw === post.nsfw
+      nsfw === post.nsfw &&
+      (post.tags ?? []).length === tags.length &&
+      tags.every((v, idx) => v === (post.tags ?? [])[idx])
     )
       return;
     (async () => {
@@ -195,6 +239,7 @@ export default function Post(props: PostProps) {
           post!.id,
           {
             nsfw,
+            tags,
             title: debouncedTitle || post.title,
             public: isPublic,
           },
@@ -204,12 +249,23 @@ export default function Post(props: PostProps) {
       } catch {}
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [post, debouncedTitle, isPublic, nsfw]);
+  }, [post, debouncedTitle, isPublic, nsfw, tags]);
 
   const postTitle =
     (nsfw ? "[NSFW] " : "") + post?.title ||
     `Post by ${props.postAuthorUsername}`;
   const description = `Shared by ${props.postAuthorUsername}`;
+
+  const [tagsMultiSelectData, setTagsMultiSelectData] = useState(
+    [] as string[]
+  );
+
+  useEffect(() => {
+    setTagsMultiSelectData((tags) => [
+      ...tags,
+      ...tagsSuggestions.filter((t) => !tags.includes(t)),
+    ]);
+  }, [setTagsMultiSelectData, tagsSuggestions]);
 
   return (
     <>
@@ -425,6 +481,49 @@ export default function Post(props: PostProps) {
                       checked={nsfw}
                       onChange={(e) => setNsfw(e.target.checked)}
                     />
+                    <CommaMultiSelect
+                      data={tagsMultiSelectData}
+                      label="Tags"
+                      placeholder="Select or add your own"
+                      maw={350}
+                      value={tags}
+                      onChange={setTags}
+                      setData={setTagsMultiSelectData}
+                    />
+                    {tagsSuggestions.filter((t) => !tags.includes(t)).length >
+                      0 && (
+                      <>
+                        <Text color="dimmed">Suggestions</Text>
+                        <Group maw={350}>
+                          {tagsSuggestions
+                            .filter((t) => !tags.includes(t))
+                            .map((t) => (
+                              <Badge
+                                key={t}
+                                rightSection={<IconPlus size={14} />}
+                                onClick={() => setTags((tags) => [...tags, t])}
+                                styles={(theme) => ({
+                                  rightSection: {
+                                    display: "flex",
+                                    alignItems: "center",
+                                  },
+                                  root: {
+                                    cursor: "pointer",
+                                    ":hover": {
+                                      background: theme.fn.rgba(
+                                        theme.colors.blue[4],
+                                        0.3
+                                      ),
+                                    },
+                                  },
+                                })}
+                              >
+                                {t}
+                              </Badge>
+                            ))}
+                        </Group>
+                      </>
+                    )}
                     <Button
                       variant="gradient"
                       color="red"
