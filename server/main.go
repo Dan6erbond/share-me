@@ -2,6 +2,8 @@ package main
 
 import (
 	"log"
+	"net/http"
+	"net/url"
 	"os"
 
 	_ "github.com/joho/godotenv/autoload"
@@ -51,6 +53,43 @@ func main() {
 
 		return nil
 	})
+
+	app.OnRecordBeforeCreateRequest("files", "create", "defaults").Add(func(e *core.RecordCreateEvent) error {
+		if e.Record.Collection().Name != "files" {
+			return nil
+		}
+
+		e.Record.Set("tags", "[]")
+		e.Record.Set("tagsSuggestions", "[]")
+
+		return nil
+	})
+
+	if os.Getenv("TAGGER_HOST") != "" {
+		app.OnRecordAfterCreateRequest("files", "create", "tag").Add(func(e *core.RecordCreateEvent) error {
+			if e.Record.Collection().Name != "files" {
+				return nil
+			}
+
+			url, err := url.Parse(os.Getenv("TAGGER_HOST"))
+
+			if err != nil {
+				log.Println(err)
+				return err
+			}
+
+			url.Path = "files/" + e.Record.Id
+
+			_, err = http.Post(url.String(), "application/json", nil)
+
+			if err != nil {
+				log.Println(err)
+				return err
+			}
+
+			return err
+		})
+	}
 
 	if err := app.Start(); err != nil {
 		log.Fatal(err)
