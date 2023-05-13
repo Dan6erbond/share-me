@@ -1,0 +1,9 @@
+flask==2.3.2
+numpy==1.24.2
+pillow==9.5.0
+pocketbase==0.8.1
+requests==2.30.0
+timm==0.6.13
+torch==2.0.1
+transformers==4.29.0
+urllib3<2.0
