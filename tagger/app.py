@@ -75,3 +75,6 @@ def start_tag_file(file_id):
     thread.start()
 
     return {"file": file_id, "model": "facebook/detr-resnet-50"}, 202
+
+if __name__ == "__main__":
+    app.run()
