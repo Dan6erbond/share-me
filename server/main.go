@@ -54,13 +54,19 @@ func main() {
 		return nil
 	})
 
-	app.OnRecordBeforeCreateRequest("files", "create", "defaults").Add(func(e *core.RecordCreateEvent) error {
-		if e.Record.Collection().Name != "files" {
+	app.OnRecordBeforeCreateRequest("files/posts", "create", "defaults").Add(func(e *core.RecordCreateEvent) error {
+		if e.Record.Collection().Name == "files" {
+			e.Record.Set("tags", "[]")
+			e.Record.Set("tagsSuggestions", "[]")
+
 			return nil
 		}
 
-		e.Record.Set("tags", "[]")
-		e.Record.Set("tagsSuggestions", "[]")
+		if e.Record.Collection().Name == "posts" {
+			e.Record.Set("tags", "[]")
+
+			return nil
+		}
 
 		return nil
 	})
