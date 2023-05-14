@@ -16,8 +16,9 @@ app = Flask(__name__)
 
 client = PocketBase(os.getenv("POCKETBASE_URL"))
 
-processor = DetrImageProcessor.from_pretrained("facebook/detr-resnet-50")
-model = DetrForObjectDetection.from_pretrained("facebook/detr-resnet-50")
+model_name_or_path = os.getenv("DETR_RESNET_50_MODEL_PATH", "facebook/detr-resnet-50")
+processor = DetrImageProcessor.from_pretrained(model_name_or_path)
+model = DetrForObjectDetection.from_pretrained(model_name_or_path)
 
 
 def get_auth_token(email, password):
@@ -75,6 +76,7 @@ def start_tag_file(file_id):
     thread.start()
 
     return {"file": file_id, "model": "facebook/detr-resnet-50"}, 202
+
 
 if __name__ == "__main__":
     app.run()
