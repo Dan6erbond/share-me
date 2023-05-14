@@ -32,6 +32,18 @@ func RegisterHooks(app *pocketbase.PocketBase, taggerHost string) {
 			return nil
 		}
 
+		var isImageType bool
+		for _, t := range imageMimeTypes {
+			if e.Record.GetString("type") == t {
+				isImageType = true
+				continue
+			}
+		}
+
+		if !isImageType {
+			return nil
+		}
+
 		url, err := url.Parse(taggerHost)
 
 		if err != nil {

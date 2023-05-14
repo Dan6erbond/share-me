@@ -32,6 +32,18 @@ func RegisterCommands(app *pocketbase.PocketBase, taggerHost string) {
 					continue
 				}
 
+				var isImageType bool
+				for _, t := range imageMimeTypes {
+					if file.GetString("type") == t {
+						isImageType = true
+						continue
+					}
+				}
+
+				if !isImageType {
+					continue
+				}
+
 				url, err := url.Parse(taggerHost)
 
 				if err != nil {
