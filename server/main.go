@@ -86,7 +86,8 @@ func main() {
 
 			url.Path = "files/" + e.Record.Id
 
-			_, err = http.Post(url.String(), "application/json", nil)
+			resp, err := http.Post(url.String(), "application/json", nil)
+			resp.Body.Close()
 
 			if err != nil {
 				log.Println(err)
