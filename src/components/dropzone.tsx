@@ -1,7 +1,7 @@
+import { MEDIA_MIME_TYPE } from "@/utils/mediaTypes";
 import { Box, Group, Text, rem, useMantineTheme } from "@mantine/core";
 import { DropzoneProps, Dropzone as MantineDropzone } from "@mantine/dropzone";
 import { IconPhoto, IconUpload, IconX } from "@tabler/icons-react";
-import { MEDIA_MIME_TYPE } from "../utils/mediaTypes";
 
 function Dropzone(
   props: Pick<DropzoneProps, "onDrop"> & Partial<DropzoneProps>
