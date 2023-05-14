@@ -2,8 +2,6 @@ package main
 
 import (
 	"log"
-	"net/http"
-	"net/url"
 	"os"
 
 	_ "github.com/joho/godotenv/autoload"
@@ -14,6 +12,7 @@ import (
 	// uncomment once you have at least one .go migration file in the "migrations" directory
 	_ "github.com/Dan6erbond/share-me/migrations"
 	"github.com/Dan6erbond/share-me/pkg/meilisearch"
+	"github.com/Dan6erbond/share-me/pkg/tags"
 )
 
 func main() {
@@ -54,48 +53,9 @@ func main() {
 		return nil
 	})
 
-	app.OnRecordBeforeCreateRequest("files/posts", "create", "defaults").Add(func(e *core.RecordCreateEvent) error {
-		if e.Record.Collection().Name == "files" {
-			e.Record.Set("tags", "[]")
-			e.Record.Set("tagsSuggestions", "[]")
-
-			return nil
-		}
-
-		if e.Record.Collection().Name == "posts" {
-			e.Record.Set("tags", "[]")
-
-			return nil
-		}
-
-		return nil
-	})
-
 	if os.Getenv("TAGGER_HOST") != "" {
-		app.OnRecordAfterCreateRequest("files", "create", "tag").Add(func(e *core.RecordCreateEvent) error {
-			if e.Record.Collection().Name != "files" {
-				return nil
-			}
-
-			url, err := url.Parse(os.Getenv("TAGGER_HOST"))
-
-			if err != nil {
-				log.Println(err)
-				return err
-			}
-
-			url.Path = "files/" + e.Record.Id
-
-			resp, err := http.Post(url.String(), "application/json", nil)
-			resp.Body.Close()
-
-			if err != nil {
-				log.Println(err)
-				return err
-			}
-
-			return err
-		})
+		tags.RegisterCommands(app, os.Getenv("TAGGER_HOST"))
+		tags.RegisterHooks(app, os.Getenv("TAGGER_HOST"))
 	}
 
 	if err := app.Start(); err != nil {
