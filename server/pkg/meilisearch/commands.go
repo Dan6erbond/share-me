@@ -67,6 +67,11 @@ func RegisterCommands(app *pocketbase.PocketBase, client *meilisearch.Client) {
 				postDocument, _ := getPostDocument(app, p)
 				documents = append(documents, postDocument)
 			}
+
+			if len(documents) == 0 {
+				return
+			}
+
 			_, err = client.Index("posts").AddDocuments(documents)
 
 			if err != nil {
