@@ -1,0 +1,28 @@
+version: "3.8"
+
+services:
+  server:
+    build:
+      context: server
+    volumes:
+      - ./pb_data:/pb/pb_data
+    environment:
+      TAGGER_HOST: http://tagger:80
+    ports:
+      - 8080:8080
+  frontend:
+    build:
+      context: .
+    environment:
+      POCKETBASE_URL: http://127.0.0.1:8080
+      POCKETBASE_SERVER_URL: http://server:8080
+    ports:
+      - 3000:3000
+  tagger:
+    build:
+      context: tagger
+    environment:
+      POCKETBASE_URL: http://server:8080
+    env_file: ./tagger/.env
+    ports:
+      - 5001:80
