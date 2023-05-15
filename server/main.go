@@ -12,6 +12,7 @@ import (
 	// uncomment once you have at least one .go migration file in the "migrations" directory
 	_ "github.com/Dan6erbond/share-me/migrations"
 	"github.com/Dan6erbond/share-me/pkg/meilisearch"
+	"github.com/Dan6erbond/share-me/pkg/tags"
 )
 
 func main() {
@@ -51,6 +52,11 @@ func main() {
 
 		return nil
 	})
+
+	if os.Getenv("TAGGER_HOST") != "" {
+		tags.RegisterCommands(app, os.Getenv("TAGGER_HOST"))
+		tags.RegisterHooks(app, os.Getenv("TAGGER_HOST"))
+	}
 
 	if err := app.Start(); err != nil {
 		log.Fatal(err)

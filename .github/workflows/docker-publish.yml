@@ -31,11 +31,14 @@ jobs:
         image:
           - ${{ github.repository }}-frontend
           - ${{ github.repository }}-server
+          - ${{ github.repository }}-tagger
         include:
           - image: ${{ github.repository }}-frontend
             context: "."
           - image: ${{ github.repository }}-server
             context: "server"
+          - image: ${{ github.repository }}-tagger
+            context: "tagger"
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3

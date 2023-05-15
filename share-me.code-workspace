@@ -1,0 +1,20 @@
+{
+  "folders": [
+	{
+		"path": "."
+	},
+	{
+		"path": "search"
+	},
+	{
+		"path": "server"
+	},
+	{
+		"path": "tagger"
+	}
+],
+  "settings": {
+    "python.formatting.provider": "black",
+    "conventionalCommits.scopes": ["tagger", "server", "frontend"]
+  }
+}

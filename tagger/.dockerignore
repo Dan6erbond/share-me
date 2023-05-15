@@ -1,0 +1,4 @@
+.env
+venv
+detr-resnet-50
+detr-resnet-50-weights
