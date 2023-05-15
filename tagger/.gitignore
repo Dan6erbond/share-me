@@ -161,3 +161,4 @@ cython_debug/
 
 # HuggingFace models
 detr-resnet-50
+detr-resnet-50-weights

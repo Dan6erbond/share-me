@@ -27,6 +27,8 @@ RUN mkdir /tagger/cache
 ENV TORCH_HOME=/tagger/torch
 ENV TRANSFORMERS_CACHE=/tagger/cache/huggingface/hub
 
+RUN python3 load_model.py
+
 EXPOSE 80
 
 CMD ["gunicorn", "--conf", "gunicorn_conf.py", "--bind", "0.0.0.0:80", "app:app"]
