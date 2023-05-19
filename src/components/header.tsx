@@ -33,6 +33,7 @@ import {
   IconCaretDown,
   IconCirclePlus,
   IconLogout,
+  IconSettings,
   IconUserCircle,
 } from "@tabler/icons-react";
 import Link from "next/link";
@@ -52,7 +53,7 @@ function Header({ signUpEnabled }: HeaderProps) {
   const { user } = useAuth();
   const { usernamePasswordEnabled } = useAuthMethods();
 
-  const { data: userPosts, isLoading } = useQuery(
+  const { data: userPosts } = useQuery(
     ["userPosts", user?.id],
     ({ queryKey }) => {
       const [_, id] = queryKey;
@@ -205,6 +206,15 @@ function Header({ signUpEnabled }: HeaderProps) {
               Profile
             </Button>
             <Button
+              leftIcon={<IconSettings />}
+              component={Link}
+              href="/settings"
+              variant="outline"
+              color="blue"
+            >
+              Settings
+            </Button>
+            <Button
               leftIcon={<IconLogout />}
               onClick={() => {
                 pb.authStore.clear();
@@ -224,7 +234,9 @@ function Header({ signUpEnabled }: HeaderProps) {
             component={Link}
             href="/"
             color="white"
-            sx={{ textDecoration: "none" }}
+            sx={(theme) => ({
+              ":hover": { textDecoration: "none", color: theme.colors.dark[1] },
+            })}
           >
             <Title
               sx={(theme) => ({
@@ -282,6 +294,13 @@ function Header({ signUpEnabled }: HeaderProps) {
                       href={`/users/${user.id}`}
                     >
                       Profile
+                    </Menu.Item>
+                    <Menu.Item
+                      icon={<IconSettings />}
+                      component={Link}
+                      href="/settings"
+                    >
+                      Settings
                     </Menu.Item>
                     <Menu.Divider />
                     <Menu.Item
