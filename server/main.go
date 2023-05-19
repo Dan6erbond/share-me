@@ -55,13 +55,13 @@ func main() {
 	})
 
 	app.OnBeforeServe().Add(func(e *core.ServeEvent) error {
-		err := keys.RegisterMiddleware(e, os.Getenv("JWT_SECRET_KEY"))
+		err := keys.RegisterMiddleware(e)
 
 		if err != nil {
 			return err
 		}
 
-		err = keys.RegisterRoutes(e, os.Getenv("JWT_SECRET_KEY"))
+		err = keys.RegisterRoutes(e)
 
 		if err != nil {
 			return err
