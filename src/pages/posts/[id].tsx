@@ -4,6 +4,7 @@ import Head from "@/components/head";
 import Layout from "@/components/layout";
 import UserAvatar from "@/components/userAvatar";
 import { useCreatePost } from "@/hooks/useCreatePost";
+import { useRefCallback } from "@/hooks/useRefCallback";
 import { useUploadFiles } from "@/hooks/useUploadFiles";
 import { initPocketBaseServer, usePocketBase } from "@/pocketbase";
 import { useAuth } from "@/pocketbase/auth";
@@ -43,7 +44,6 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { Record, RecordSubscription } from "pocketbase";
 import { useCallback, useEffect, useState } from "react";
-import { useRefCallback } from "../../hooks/useRefCallback";
 
 interface PostProps extends ShareMeEnv {
   title: string;
@@ -78,7 +78,7 @@ export default function Post(props: PostProps) {
 
   const [debouncedTitle] = useDebouncedValue(title, 200, { leading: true });
 
-  const { uploading, uploadFiles: _uploadFiles } = useUploadFiles({
+  const { uploads, uploadFiles: _uploadFiles } = useUploadFiles({
     acceptTypes: MEDIA_MIME_TYPE,
   });
 
@@ -481,9 +481,9 @@ export default function Post(props: PostProps) {
                 </Stack>
               </Paper>
             ))}
-            {uploading && (
-              <Loader variant="bars" sx={{ alignSelf: "center" }} />
-            )}
+            {uploads.map(({ uuid }) => (
+              <Loader variant="bars" sx={{ alignSelf: "center" }} key={uuid} />
+            ))}
             {userIsAuthor && <Dropzone onDrop={uploadFiles} />}
           </Stack>
           <Paper
