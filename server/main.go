@@ -67,7 +67,7 @@ func main() {
 			return err
 		}
 
-		err = apis.RegisterRoutes(e)
+		err = apis.RegisterFileRoutes(e)
 
 		return err
 	})

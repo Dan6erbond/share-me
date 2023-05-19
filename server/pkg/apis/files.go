@@ -37,7 +37,7 @@ func newFile(app core.App, files *models.Collection, author *models.Record, file
 	return fileModel, nil
 }
 
-func RegisterRoutes(e *core.ServeEvent) error {
+func RegisterFileRoutes(e *core.ServeEvent) error {
 	_, err := e.Router.AddRoute(echo.Route{
 		Method: http.MethodPost,
 		Path:   "/api/posts",
