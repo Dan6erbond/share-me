@@ -1,6 +1,7 @@
 package apis
 
 import (
+	"mime/multipart"
 	"net/http"
 
 	"github.com/labstack/echo/v5"
@@ -10,6 +11,31 @@ import (
 	"github.com/pocketbase/pocketbase/models"
 	"github.com/pocketbase/pocketbase/tools/filesystem"
 )
+
+func newFile(app core.App, files *models.Collection, author *models.Record, file *multipart.FileHeader) (*models.Record, error) {
+	f, err := filesystem.NewFileFromMultipart(file)
+
+	if err != nil {
+		return nil, apis.NewApiError(http.StatusInternalServerError, "", err)
+	}
+
+	fileModel := models.NewRecord(files)
+
+	form := forms.NewRecordUpsert(app, fileModel)
+	form.LoadData(map[string]any{
+		"title":           f.OriginalName,
+		"author":          author.Id,
+		"tags":            "[]",
+		"tagsSuggestions": "[]",
+	})
+	form.AddFiles("file", f)
+
+	if err := form.Submit(); err != nil {
+		return nil, apis.NewApiError(http.StatusInternalServerError, "", err)
+	}
+
+	return fileModel, nil
+}
 
 func RegisterRoutes(e *core.ServeEvent) error {
 	_, err := e.Router.AddRoute(echo.Route{
@@ -30,31 +56,39 @@ func RegisterRoutes(e *core.ServeEvent) error {
 				return apis.NewApiError(http.StatusInternalServerError, "", err)
 			}
 
+			var fileIds []string
+
 			ff, err := c.FormFile("file")
 
-			if err != nil {
-				return apis.NewApiError(http.StatusInternalServerError, "", err)
-			}
+			if ff != nil && err != nil {
+				file, err := newFile(e.App, files, record, ff)
 
-			f, err := filesystem.NewFileFromMultipart(ff)
+				if err != nil {
+					return apis.NewApiError(http.StatusInternalServerError, "", err)
+				}
 
-			if err != nil {
-				return apis.NewApiError(http.StatusInternalServerError, "", err)
-			}
+				fileIds = append(fileIds, file.Id)
+			} else {
+				form, err := c.MultipartForm()
+				if err != nil {
+					return err
+				}
 
-			file := models.NewRecord(files)
+				formFiles, ok := form.File["files"]
 
-			form := forms.NewRecordUpsert(e.App, file)
-			form.LoadData(map[string]any{
-				"title":           f.OriginalName,
-				"author":          record.Id,
-				"tags":            "[]",
-				"tagsSuggestions": "[]",
-			})
-			form.AddFiles("file", f)
+				if !ok {
+					return apis.NewApiError(http.StatusBadRequest, "Either the file or files form body must be set.", nil)
+				}
 
-			if err := form.Submit(); err != nil {
-				return apis.NewApiError(http.StatusInternalServerError, "", err)
+				for _, f := range formFiles {
+					file, err := newFile(e.App, files, record, f)
+
+					if err != nil {
+						return apis.NewApiError(http.StatusInternalServerError, "", err)
+					}
+
+					fileIds = append(fileIds, file.Id)
+				}
 			}
 
 			post := models.NewRecord(posts)
@@ -62,7 +96,7 @@ func RegisterRoutes(e *core.ServeEvent) error {
 			post.Set("public", false)
 			post.Set("nsfw", false)
 			post.Set("author", record.Id)
-			post.Set("files", []string{file.Id})
+			post.Set("files", fileIds)
 
 			e.App.Dao().SaveRecord(post)
 
