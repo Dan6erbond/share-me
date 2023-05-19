@@ -12,15 +12,11 @@ import (
 )
 
 func RegisterRoutes(e *core.ServeEvent) error {
-	e.Router.AddRoute(echo.Route{
+	_, err := e.Router.AddRoute(echo.Route{
 		Method: http.MethodPost,
 		Path:   "/api/posts",
 		Handler: func(c echo.Context) error {
 			record, _ := c.Get(apis.ContextAuthRecordKey).(*models.Record)
-
-			if record == nil {
-				return apis.NewNotFoundError("Missing auth record context.", nil)
-			}
 
 			posts, err := e.App.Dao().FindCollectionByNameOrId("posts")
 
@@ -70,9 +66,13 @@ func RegisterRoutes(e *core.ServeEvent) error {
 
 			e.App.Dao().SaveRecord(post)
 
-			return c.JSON(http.StatusOK, map[string]interface{}{
-				"post": post,
-			})
+			postJson, err := post.MarshalJSON()
+
+			if err != nil {
+				return apis.NewApiError(http.StatusInternalServerError, "", err)
+			}
+
+			return c.JSONBlob(http.StatusOK, postJson)
 		},
 		Middlewares: []echo.MiddlewareFunc{
 			apis.ActivityLogger(e.App),
@@ -80,5 +80,5 @@ func RegisterRoutes(e *core.ServeEvent) error {
 		},
 	})
 
-	return nil
+	return err
 }

@@ -11,8 +11,8 @@ import (
 	"github.com/pocketbase/pocketbase/tokens"
 )
 
-func RegisterRoutes(e *core.ServeEvent) error {
-	e.Router.AddRoute(echo.Route{
+func RegisterRoutes(e *core.ServeEvent, jwtSecretKey string) error {
+	_, err := e.Router.AddRoute(echo.Route{
 		Method: http.MethodPost,
 		Path:   "/api/keys",
 		Handler: func(c echo.Context) error {
@@ -38,7 +38,9 @@ func RegisterRoutes(e *core.ServeEvent) error {
 				"dbId":         tokenModel.Id,
 			}
 
-			token, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString([]byte(e.App.Settings().RecordAuthToken.Secret))
+			token, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString(
+				[]byte(record.TokenKey() + jwtSecretKey),
+			)
 
 			if err != nil {
 				return apis.NewApiError(http.StatusInternalServerError, "", err)
@@ -54,5 +56,5 @@ func RegisterRoutes(e *core.ServeEvent) error {
 		},
 	})
 
-	return nil
+	return err
 }

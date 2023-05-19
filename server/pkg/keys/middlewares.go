@@ -11,8 +11,8 @@ import (
 	"github.com/spf13/cast"
 )
 
-func RegisterMiddleware(e *core.ServeEvent) error {
-	e.Router.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
+func LoadKeyAuthContext(app core.App, jwtSecretKey string) echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			token := c.Request().Header.Get("Authorization")
 			if token == "" {
@@ -28,25 +28,37 @@ func RegisterMiddleware(e *core.ServeEvent) error {
 			if dbId, ok := claims["dbId"]; ok {
 				tokenId := cast.ToString(dbId)
 
-				token, err := e.App.Dao().FindRecordById("tokens", tokenId)
+				dbToken, err := app.Dao().FindRecordById("tokens", tokenId)
 
 				if err != nil {
 					return apis.NewUnauthorizedError("The request requires valid record authorization token to be set.", nil)
 				}
 
-				if token.GetBool("revoked") {
+				if dbToken.GetBool("revoked") {
 					return apis.NewUnauthorizedError("The request requires valid record authorization token to be set.", nil)
 				}
 
-				if !token.GetDateTime("expires").IsZero() && token.GetDateTime("expires").Time().Before(time.Now()) {
+				if !dbToken.GetDateTime("expires").IsZero() && dbToken.GetDateTime("expires").Time().Before(time.Now()) {
 					return apis.NewUnauthorizedError("The request requires valid record authorization token to be set.", nil)
+				}
+
+				record, err := app.Dao().FindAuthRecordByToken(
+					token,
+					jwtSecretKey,
+				)
+
+				if err == nil && record != nil {
+					c.Set(apis.ContextAuthRecordKey, record)
 				}
 			}
 
-			next(c)
-			return nil
+			return next(c)
 		}
-	})
+	}
+}
+
+func RegisterMiddleware(e *core.ServeEvent, jwtSecretKey string) error {
+	e.Router.Use(LoadKeyAuthContext(e.App, jwtSecretKey))
 
 	return nil
 }
