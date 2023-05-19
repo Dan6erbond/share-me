@@ -78,7 +78,7 @@ export default function Post(props: PostProps) {
 
   const [debouncedTitle] = useDebouncedValue(title, 200, { leading: true });
 
-  const { uploading, uploadFiles: _uploadFiles } = useUploadFiles({
+  const { uploads, uploadFiles: _uploadFiles } = useUploadFiles({
     acceptTypes: MEDIA_MIME_TYPE,
   });
 
@@ -481,9 +481,9 @@ export default function Post(props: PostProps) {
                 </Stack>
               </Paper>
             ))}
-            {uploading && (
-              <Loader variant="bars" sx={{ alignSelf: "center" }} />
-            )}
+            {uploads.map(({ uuid }) => (
+              <Loader variant="bars" sx={{ alignSelf: "center" }} key={uuid} />
+            ))}
             {userIsAuthor && <Dropzone onDrop={uploadFiles} />}
           </Stack>
           <Paper
