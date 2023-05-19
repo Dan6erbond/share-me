@@ -1,3 +1,4 @@
+import CommaMultiSelect from "@/components/commaMultiSelect";
 import Dropzone from "@/components/dropzone";
 import Head from "@/components/head";
 import Layout from "@/components/layout";
@@ -12,6 +13,7 @@ import { MEDIA_MIME_TYPE } from "@/utils/mediaTypes";
 import {
   ActionIcon,
   Anchor,
+  Badge,
   Box,
   Button,
   Checkbox,
@@ -21,6 +23,7 @@ import {
   Loader,
   MediaQuery,
   Paper,
+  Popover,
   Stack,
   Switch,
   Text,
@@ -32,13 +35,15 @@ import { useDebouncedValue } from "@mantine/hooks";
 import {
   IconClipboardCheck,
   IconClipboardCopy,
+  IconPlus,
   IconTrash,
 } from "@tabler/icons-react";
 import { GetServerSideProps } from "next";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { Record } from "pocketbase";
+import { Record, RecordSubscription } from "pocketbase";
 import { useCallback, useEffect, useState } from "react";
+import { useRefCallback } from "../../hooks/useRefCallback";
 
 interface PostProps extends ShareMeEnv {
   title: string;
@@ -60,18 +65,47 @@ export default function Post(props: PostProps) {
 
   const [post, setPost] = useState<Post | null>();
   const [userIsAuthor, setUserIsAuthor] = useState(props.userIsAuthor);
-  const [files, setFiles] = useState<ShareMeFile[]>([]);
+  const [files, _setFiles] = useState<ShareMeFile[]>([]);
   const [title, setTitle] = useState(props.title);
   const [isPublic, setIsPublic] = useState(props.isPublic);
   const [nsfw, setNsfw] = useState(props.nsfw);
+  const [tags, setTags] = useState<string[]>([]);
 
   const [blurred, setBlurred] = useState<boolean[]>([]);
+  const [tagsSuggestions, setTagsSuggestions] = useState<string[]>([]);
+  const [showTagsPopover, setShowTagsPopover] = useState(false);
+  const [showedTagsPopover, setShowedTagsPopover] = useState(false);
 
   const [debouncedTitle] = useDebouncedValue(title, 200, { leading: true });
 
   const { uploading, uploadFiles: _uploadFiles } = useUploadFiles({
     acceptTypes: MEDIA_MIME_TYPE,
   });
+
+  const setFiles = useCallback(
+    (setter: ShareMeFile[] | ((files: ShareMeFile[]) => ShareMeFile[])) => {
+      let f: ShareMeFile[];
+
+      if (typeof setter === "function") {
+        f = setter(files);
+      } else {
+        f = setter;
+      }
+      _setFiles(f);
+
+      setTagsSuggestions(
+        Array.from(
+          new Set(
+            f.reduce(
+              (tags, f) => [...tags, ...(f.tagsSuggestions ?? [])],
+              [] as string[]
+            )
+          )
+        )
+      );
+    },
+    [_setFiles, setTagsSuggestions, files]
+  );
 
   const uploadFiles = (f: File[]) =>
     _uploadFiles(
@@ -127,31 +161,77 @@ export default function Post(props: PostProps) {
   const setValues = useCallback(
     (record: Post) => {
       setPost(record);
-      setFiles((files) => (record.expand.files as ShareMeFile[]) || files);
+      record.expand.files && setFiles(record.expand.files as ShareMeFile[]);
       setTitle(record.title);
       setIsPublic(record.public);
       setNsfw(record.nsfw);
       setUserIsAuthor(user?.id === record.author);
+      setTags(record.tags ?? []);
     },
-    [setPost, setFiles, setTitle, setIsPublic, setNsfw, setUserIsAuthor, user]
+    [
+      setPost,
+      setFiles,
+      setTitle,
+      setIsPublic,
+      setNsfw,
+      setUserIsAuthor,
+      setTags,
+      user,
+    ]
   );
 
-  const fetchPost = useCallback(async () => {
-    if (id !== post?.id) {
-      try {
-        const record = await pb
-          .collection("posts")
-          .getOne<Post>(Array.isArray(id) ? id[0] : id!, {
-            expand: "files,author",
-          });
-        setValues(record);
-      } catch {}
-    }
-  }, [setValues, pb, post, id]);
+  const fileSubscription = useRefCallback(
+    (e: RecordSubscription<ShareMeFile>) => {
+      if (e.action === "create") return;
+
+      setFiles((files) => {
+        if (
+          (e.record.tagsSuggestions ?? []).length > 0 &&
+          !e.record.tagsSuggestions.every((s: string) =>
+            tagsSuggestions.includes(s)
+          )
+        ) {
+          if (!showedTagsPopover) {
+            setShowTagsPopover(true);
+            setTimeout(() => setShowTagsPopover(false), 3 * 1000);
+            setShowedTagsPopover(true);
+          }
+        }
+
+        return files.map((f) => (f.id === e.record.id ? e.record : f));
+      });
+    },
+    [
+      setFiles,
+      setShowTagsPopover,
+      tagsSuggestions,
+      showedTagsPopover,
+      setShowedTagsPopover,
+    ]
+  );
 
   useEffect(() => {
-    id && fetchPost();
-  }, [id, fetchPost]);
+    id &&
+      id !== post?.id &&
+      (async () => {
+        try {
+          const _id = Array.isArray(id) ? id[0] : id!;
+          const record = await pb.collection("posts").getOne<Post>(_id, {
+            expand: "files,author",
+          });
+          setValues(record);
+
+          pb.collection("files").subscribe<ShareMeFile>("*", (e) =>
+            fileSubscription.current(e)
+          );
+        } catch {}
+      })();
+
+    return () => {
+      post?.id &&
+        pb.collection("posts").unsubscribe(post?.id).catch(console.error);
+    };
+  }, [id, setValues, pb, post, tags, files, setFiles, fileSubscription]);
 
   const deleteFile = async (id: string) => {
     const record = await pb.collection("posts").update<Post>(
@@ -186,7 +266,9 @@ export default function Post(props: PostProps) {
     if (
       debouncedTitle == post.title &&
       isPublic === post.public &&
-      nsfw === post.nsfw
+      nsfw === post.nsfw &&
+      (post.tags ?? []).length === tags.length &&
+      tags.every((v, idx) => v === (post.tags ?? [])[idx])
     )
       return;
     (async () => {
@@ -195,6 +277,7 @@ export default function Post(props: PostProps) {
           post!.id,
           {
             nsfw,
+            tags,
             title: debouncedTitle || post.title,
             public: isPublic,
           },
@@ -204,12 +287,23 @@ export default function Post(props: PostProps) {
       } catch {}
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [post, debouncedTitle, isPublic, nsfw]);
+  }, [post, debouncedTitle, isPublic, nsfw, tags]);
 
   const postTitle =
     (nsfw ? "[NSFW] " : "") + title ||
     `Post by ${props.postAuthorUsername}`;
   const description = `Shared by ${props.postAuthorUsername}`;
+
+  const [tagsMultiSelectData, setTagsMultiSelectData] = useState(
+    [] as string[]
+  );
+
+  useEffect(() => {
+    setTagsMultiSelectData((tags) => [
+      ...tags,
+      ...tagsSuggestions.filter((t) => !tags.includes(t)),
+    ]);
+  }, [setTagsMultiSelectData, tagsSuggestions]);
 
   return (
     <>
@@ -230,7 +324,7 @@ export default function Post(props: PostProps) {
             : user?.id && createPost(files)
         }
       >
-        <Group sx={{ justifyContent: "center" }} align="start">
+        <Group sx={{ justifyContent: "center" }} align="start" px="md" grow>
           <Stack maw="650px" miw="350px" sx={{ flex: 1, flexGrow: 1 }} px="md">
             {userIsAuthor ||
               (post?.expand.author && (
@@ -392,65 +486,133 @@ export default function Post(props: PostProps) {
             )}
             {userIsAuthor && <Dropzone onDrop={uploadFiles} />}
           </Stack>
-          <Stack h="100%">
-            <Paper bg="dark.6" p="lg" withBorder miw="200px">
-              <Stack>
-                {userIsAuthor && (
-                  <Switch
-                    label="Public"
-                    labelPosition="left"
-                    checked={isPublic}
-                    onChange={(e) => setIsPublic(e.target.checked)}
-                  />
+          <Paper
+            bg="dark.6"
+            p="lg"
+            withBorder
+            sx={{ flex: 1 }}
+            maw={320}
+            pos="sticky"
+            top={92}
+          >
+            <Stack>
+              <CopyButton
+                value={
+                  typeof window !== "undefined" ? window.location.href : ""
+                }
+              >
+                {({ copy, copied }) => (
+                  <Button
+                    variant="gradient"
+                    onClick={copy}
+                    color={copied ? "teal" : "blue"}
+                  >
+                    {copied ? "Copied" : "Copy Link"}
+                  </Button>
                 )}
-                <CopyButton
-                  value={
-                    typeof window !== "undefined" ? window.location.href : ""
-                  }
-                >
-                  {({ copy, copied }) => (
-                    <Button
-                      variant="gradient"
-                      onClick={copy}
-                      color={copied ? "teal" : "blue"}
-                    >
-                      {copied ? "Copied" : "Copy Link"}
-                    </Button>
-                  )}
-                </CopyButton>
-                {userIsAuthor && (
-                  <>
+              </CopyButton>
+              {userIsAuthor && (
+                <>
+                  <Group>
+                    <Switch
+                      label="Public"
+                      checked={isPublic}
+                      onChange={(e) => setIsPublic(e.target.checked)}
+                    />
                     <Checkbox
                       label="NSFW"
                       checked={nsfw}
                       onChange={(e) => setNsfw(e.target.checked)}
                     />
-                    <Button
-                      variant="gradient"
-                      color="red"
-                      sx={(theme) => ({
-                        background: theme.fn.linearGradient(
-                          45,
-                          theme.colors.red[6],
-                          theme.colors.pink[5]
-                        ),
-                      })}
-                      onClick={() => {
-                        post &&
-                          pb
-                            .collection("posts")
-                            .delete(post.id)
-                            .then(() => router.push("/"))
-                            .catch((ex) => console.error(ex));
-                      }}
-                    >
-                      Delete
-                    </Button>
-                  </>
-                )}
-              </Stack>
-            </Paper>
-          </Stack>
+                  </Group>
+                  <CommaMultiSelect
+                    data={tagsMultiSelectData}
+                    label="Tags"
+                    placeholder="Select or add your own"
+                    value={tags}
+                    onChange={setTags}
+                    setData={setTagsMultiSelectData}
+                  />
+                  {tagsSuggestions.filter((t) => !tags.includes(t)).length >
+                    0 && (
+                    <Box>
+                      <Popover
+                        width={250}
+                        position="right"
+                        withArrow
+                        shadow="md"
+                        opened={showTagsPopover}
+                      >
+                        <Popover.Target>
+                          <Text
+                            color="dimmed"
+                            display="inline-block"
+                            mb="xs"
+                            w="auto"
+                          >
+                            Suggestions
+                          </Text>
+                        </Popover.Target>
+                        <Popover.Dropdown>
+                          ✨ You can add suggested tags based on AI
+                        </Popover.Dropdown>
+                      </Popover>
+                      <Group>
+                        {tagsSuggestions
+                          .filter((t) => !tags.includes(t))
+                          .map((t) => (
+                            <Badge
+                              key={t}
+                              rightSection={<IconPlus size={14} />}
+                              onClick={() => setTags((tags) => [...tags, t])}
+                              styles={(theme) => ({
+                                rightSection: {
+                                  display: "flex",
+                                  alignItems: "center",
+                                },
+                                root: {
+                                  cursor: "pointer",
+                                  ":hover": {
+                                    background: theme.fn.rgba(
+                                      theme.colors.blue[4],
+                                      0.3
+                                    ),
+                                  },
+                                },
+                              })}
+                            >
+                              {t}
+                            </Badge>
+                          ))}
+                      </Group>
+                    </Box>
+                  )}
+
+                  <Button
+                    variant="gradient"
+                    color="red"
+                    sx={(theme) => ({
+                      background: theme.fn.linearGradient(
+                        45,
+                        theme.colors.red[6],
+                        theme.colors.pink[5]
+                      ),
+                    })}
+                    onClick={() => {
+                      post &&
+                        pb
+                          .collection("posts")
+                          .delete(post.id)
+                          .then(() => router.push("/"))
+                          .catch((ex) => console.error(ex));
+                    }}
+                  >
+                    Delete
+                  </Button>
+                </>
+              )}
+            </Stack>
+          </Paper>
         </Group>
       </Layout>
     </>

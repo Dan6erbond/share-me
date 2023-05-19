@@ -17,7 +17,9 @@ export const initPocketBaseServer = async (
   },
   res?: ServerResponse<IncomingMessage>
 ) => {
-  const pb = initPocketBase(process.env.POCKETBASE_URL);
+  const pb = initPocketBase(
+    process.env.POCKETBASE_SERVER_URL ?? process.env.POCKETBASE_URL
+  );
 
   // load the store data from the request cookie string
   pb.authStore.loadFromCookie(req?.headers?.cookie || "");
@@ -40,7 +42,9 @@ export const initPocketBaseServer = async (
 
 export const pocketBaseUrl = <T>(
   props: T
-): T & { pocketBaseUrl: string | null } => ({
+): T & {
+  pocketBaseUrl: string | null;
+} => ({
   ...props,
   pocketBaseUrl: process.env.POCKETBASE_URL ?? null,
 });

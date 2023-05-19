@@ -22,9 +22,10 @@ func getPostDocument(app *pocketbase.PocketBase, post *models.Record) (map[strin
 
 	for _, f := range files {
 		fileDocuments = append(fileDocuments, map[string]interface{}{
-			"id":          f.GetString("id"),
-			"name":        f.GetString("name"),
-			"description": f.GetString("description"),
+			"id":              f.GetString("id"),
+			"name":            f.GetString("name"),
+			"description":     f.GetString("description"),
+			"tagsSuggestions": f.GetString("tagsSuggestions"),
 		})
 	}
 
@@ -33,5 +34,6 @@ func getPostDocument(app *pocketbase.PocketBase, post *models.Record) (map[strin
 		"title":  post.GetString("title"),
 		"author": author.GetString("username"),
 		"files":  fileDocuments,
+		"tags":   post.Get("tags"),
 	}, nil
 }

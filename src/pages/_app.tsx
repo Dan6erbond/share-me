@@ -1,9 +1,9 @@
 import { initMeiliSearch } from "@/meilisearch";
 import { MeiliSearchProvider } from "@/meilisearch/context";
 import { initPocketBase, PocketBaseProvider } from "@/pocketbase";
-import { UploaderContextProvider } from "@/uploader/context";
 import { ShareMeEnv } from "@/utils/env";
 import { MantineProvider } from "@mantine/core";
+import { DatesProvider } from "@mantine/dates";
 import { Notifications } from "@mantine/notifications";
 import { AppProps } from "next/app";
 import Head from "next/head";
@@ -11,6 +11,7 @@ import Script from "next/script";
 import PocketBase from "pocketbase";
 import { useRef } from "react";
 import { QueryClient, QueryClientProvider } from "react-query";
+import "dayjs/locale/en";
 
 const queryClient = new QueryClient();
 
@@ -45,24 +46,26 @@ export default function App({ Component, pageProps }: AppProps<ShareMeEnv>) {
         }}
       >
         <Notifications />
-        <QueryClientProvider client={queryClient}>
-          <PocketBaseProvider client={pbRef.current}>
-            <MeiliSearchProvider
-              init={() =>
-                pageProps.meiliSearch
-                  ? initMeiliSearch(
-                      pageProps.meiliSearch.host,
-                      pageProps.meiliSearch.apiKey
-                    )
-                  : undefined
-              }
-            >
-              <UploaderContextProvider pocketBase={pbRef.current}>
+        <DatesProvider
+          settings={{ locale: "en", firstDayOfWeek: 0, weekendDays: [0] }}
+        >
+          <QueryClientProvider client={queryClient}>
+            <PocketBaseProvider client={pbRef.current}>
+              <MeiliSearchProvider
+                init={() =>
+                  pageProps.meiliSearch
+                    ? initMeiliSearch(
+                        pageProps.meiliSearch.host,
+                        pageProps.meiliSearch.apiKey
+                      )
+                    : undefined
+                }
+              >
                 <Component {...pageProps} />
-              </UploaderContextProvider>
-            </MeiliSearchProvider>
-          </PocketBaseProvider>
-        </QueryClientProvider>
+              </MeiliSearchProvider>
+            </PocketBaseProvider>
+          </QueryClientProvider>
+        </DatesProvider>
       </MantineProvider>
     </>
   );

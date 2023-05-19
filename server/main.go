@@ -9,9 +9,11 @@ import (
 	"github.com/pocketbase/pocketbase/core"
 	"github.com/pocketbase/pocketbase/plugins/migratecmd"
 
-	// uncomment once you have at least one .go migration file in the "migrations" directory
 	_ "github.com/Dan6erbond/share-me/migrations"
+	"github.com/Dan6erbond/share-me/pkg/apis"
+	"github.com/Dan6erbond/share-me/pkg/keys"
 	"github.com/Dan6erbond/share-me/pkg/meilisearch"
+	"github.com/Dan6erbond/share-me/pkg/tags"
 )
 
 func main() {
@@ -51,6 +53,29 @@ func main() {
 
 		return nil
 	})
+
+	app.OnBeforeServe().Add(func(e *core.ServeEvent) error {
+		err := keys.RegisterMiddleware(e)
+
+		if err != nil {
+			return err
+		}
+
+		err = keys.RegisterRoutes(e)
+
+		if err != nil {
+			return err
+		}
+
+		err = apis.RegisterFileRoutes(e)
+
+		return err
+	})
+
+	if os.Getenv("TAGGER_HOST") != "" {
+		tags.RegisterCommands(app, os.Getenv("TAGGER_HOST"))
+		tags.RegisterHooks(app, os.Getenv("TAGGER_HOST"))
+	}
 
 	if err := app.Start(); err != nil {
 		log.Fatal(err)
