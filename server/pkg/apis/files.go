@@ -99,7 +99,7 @@ func RegisterFileRoutes(e *core.ServeEvent) error {
 				formFiles, ok := form.File["files"]
 
 				if !ok {
-					return apis.NewApiError(http.StatusBadRequest, "Either the file or files form body must be set.", nil)
+					return apis.NewApiError(http.StatusBadRequest, "Either the file or files form fields must be set.", nil)
 				}
 
 				for _, f := range formFiles {
