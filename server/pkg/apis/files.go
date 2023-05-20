@@ -1,8 +1,10 @@
 package apis
 
 import (
+	"mime"
 	"mime/multipart"
 	"net/http"
+	"path/filepath"
 
 	"github.com/labstack/echo/v5"
 	"github.com/pocketbase/pocketbase/apis"
@@ -12,8 +14,27 @@ import (
 	"github.com/pocketbase/pocketbase/tools/filesystem"
 )
 
+const ApplicationOctetStream = "application/octet-stream"
+
 func newFile(app core.App, files *models.Collection, author *models.Record, file *multipart.FileHeader) (*models.Record, error) {
 	f, err := filesystem.NewFileFromMultipart(file)
+
+	var contentType string
+
+	if ct := file.Header.Get("Content-Type"); ct != "" {
+		contentType = ct
+	}
+
+	// Guess content-type from extension if missing
+	if contentType == "" || contentType == ApplicationOctetStream {
+		if ext := filepath.Ext(file.Filename); ext != "" {
+			contentType = mime.TypeByExtension(ext)
+		}
+	}
+
+	if contentType == "" {
+		contentType = ApplicationOctetStream
+	}
 
 	if err != nil {
 		return nil, apis.NewApiError(http.StatusInternalServerError, "", err)
@@ -27,6 +48,7 @@ func newFile(app core.App, files *models.Collection, author *models.Record, file
 		"author":          author.Id,
 		"tags":            "[]",
 		"tagsSuggestions": "[]",
+		"type":            contentType,
 	})
 	form.AddFiles("file", f)
 
@@ -60,7 +82,7 @@ func RegisterFileRoutes(e *core.ServeEvent) error {
 
 			ff, err := c.FormFile("file")
 
-			if ff != nil && err != nil {
+			if ff != nil && err == nil {
 				file, err := newFile(e.App, files, record, ff)
 
 				if err != nil {
@@ -77,7 +99,7 @@ func RegisterFileRoutes(e *core.ServeEvent) error {
 				formFiles, ok := form.File["files"]
 
 				if !ok {
-					return apis.NewApiError(http.StatusBadRequest, "Either the file or files form body must be set.", nil)
+					return apis.NewApiError(http.StatusBadRequest, "Either the file or files form fields must be set.", nil)
 				}
 
 				for _, f := range formFiles {
