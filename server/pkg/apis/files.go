@@ -82,7 +82,7 @@ func RegisterFileRoutes(e *core.ServeEvent) error {
 
 			ff, err := c.FormFile("file")
 
-			if ff != nil && err != nil {
+			if ff != nil && err == nil {
 				file, err := newFile(e.App, files, record, ff)
 
 				if err != nil {
