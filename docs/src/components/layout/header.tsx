@@ -23,14 +23,9 @@ import { TbHome } from "react-icons/tb";
 interface DocsHeaderProps {
   navbarOpen?: boolean;
   toggleNavbar?: () => void;
-  withDocsLink?: boolean;
 }
 
-function DocsHeader({
-  navbarOpen,
-  toggleNavbar,
-  withDocsLink,
-}: DocsHeaderProps) {
+function DocsHeader({ navbarOpen, toggleNavbar }: DocsHeaderProps) {
   const theme = useMantineTheme();
 
   const idx = useRef<lunr.Index | null>(null);
@@ -45,7 +40,8 @@ function DocsHeader({
   const [searchResults, setSearchResults] = useState([] as lunr.Index.Result[]);
 
   useEffect(() => {
-    setSearchResults((search && idx.current?.search(search)) || []);
+    const searchResults = (search && idx.current?.search(search)) || [];
+    setSearchResults(searchResults);
   }, [idx, search, setSearchResults]);
 
   return (
@@ -80,70 +76,66 @@ function DocsHeader({
           </ActionIcon>
         </MediaQuery>
 
-        {withDocsLink && (
-          <>
-            <MediaQuery smallerThan="md" styles={{ display: "none" }}>
-              <Group>
-                <Anchor
-                  component={Link}
-                  href="/installation"
-                  unstyled
-                  py="md"
-                  px="sm"
-                  size="lg"
-                  ml="xl"
-                  sx={{ ":hover": { color: theme.colors.dark[2] } }}
-                >
-                  Installation
-                </Anchor>
-                <Anchor
-                  component={Link}
-                  href="/configuration"
-                  unstyled
-                  py="md"
-                  px="sm"
-                  size="lg"
-                  sx={{ ":hover": { color: theme.colors.dark[2] } }}
-                >
-                  Configuration
-                </Anchor>
-                <Anchor
-                  component={Link}
-                  href="/authentication"
-                  unstyled
-                  py="md"
-                  px="sm"
-                  size="lg"
-                  sx={{ ":hover": { color: theme.colors.dark[2] } }}
-                >
-                  Authentication
-                </Anchor>
-                <Anchor
-                  component={Link}
-                  href="/integrations/api-keys"
-                  unstyled
-                  py="md"
-                  px="sm"
-                  size="lg"
-                  sx={{ ":hover": { color: theme.colors.dark[2] } }}
-                >
-                  Integrations
-                </Anchor>
-              </Group>
-            </MediaQuery>
-            <MediaQuery largerThan="md" styles={{ display: "none" }}>
-              <Anchor
-                component={Link}
-                href="/installation"
-                unstyled
-                size="lg"
-                sx={{ ":hover": { color: theme.colors.dark[2] } }}
-              >
-                Installation
-              </Anchor>
-            </MediaQuery>
-          </>
-        )}
+        <MediaQuery smallerThan="md" styles={{ display: "none" }}>
+          <Group>
+            <Anchor
+              component={Link}
+              href="/installation"
+              unstyled
+              py="md"
+              px="sm"
+              size="lg"
+              ml="xl"
+              sx={{ ":hover": { color: theme.colors.dark[2] } }}
+            >
+              Installation
+            </Anchor>
+            <Anchor
+              component={Link}
+              href="/configuration"
+              unstyled
+              py="md"
+              px="sm"
+              size="lg"
+              sx={{ ":hover": { color: theme.colors.dark[2] } }}
+            >
+              Configuration
+            </Anchor>
+            <Anchor
+              component={Link}
+              href="/authentication"
+              unstyled
+              py="md"
+              px="sm"
+              size="lg"
+              sx={{ ":hover": { color: theme.colors.dark[2] } }}
+            >
+              Authentication
+            </Anchor>
+            <Anchor
+              component={Link}
+              href="/integrations/api-keys"
+              unstyled
+              py="md"
+              px="sm"
+              size="lg"
+              sx={{ ":hover": { color: theme.colors.dark[2] } }}
+            >
+              Integrations
+            </Anchor>
+          </Group>
+        </MediaQuery>
+        <MediaQuery largerThan="md" styles={{ display: "none" }}>
+          <Anchor
+            component={Link}
+            href="/installation"
+            unstyled
+            size="lg"
+            sx={{ ":hover": { color: theme.colors.dark[2] } }}
+          >
+            Installation
+          </Anchor>
+        </MediaQuery>
 
         <Box sx={{ flex: 1, width: "auto" }} />
         <MediaQuery smallerThan="sm" styles={{ display: "none" }}>

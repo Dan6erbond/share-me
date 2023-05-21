@@ -4,10 +4,9 @@ import DocsHeader from "./header";
 
 interface LayoutProps {
   children: React.ReactNode;
-  withDocsLink?: boolean;
 }
 
-function Layout({ children, withDocsLink }: LayoutProps) {
+function Layout({ children }: LayoutProps) {
   return (
     <AppShell
       styles={(theme) => ({
@@ -20,7 +19,7 @@ function Layout({ children, withDocsLink }: LayoutProps) {
         },
       })}
       padding="md"
-      header={<DocsHeader withDocsLink={withDocsLink} />}
+      header={<DocsHeader />}
       footer={<DocsFooter />}
     >
       {children}
