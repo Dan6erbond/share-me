@@ -1,5 +1,7 @@
 import Layout from "@/components/docs/layout";
 
+# Proxy
+
 For an ideal experience users should use a reverse proxy such as Nginx or Traefik to expose Share Me publically. Share Me supports OpenGraph and Twitter metatags to render embeds for messaging and social media apps such as Twitter, Instagram, WhatsApp and Discord.
 
 The recommended way to expose Share Me is by forwarding `/api` and `/_` to the PocketBase backend, and the rest of the traffic including `/_next` to the frontend. This can be done with Traefik path matchers or Kubernetes Intgress routes for example:

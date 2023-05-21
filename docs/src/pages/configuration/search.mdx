@@ -1,3 +1,46 @@
 import Layout from "@/components/docs/layout";
 
+# Search
+
+Share Me uses MeiliSearch for indexing and search. It can be deployed as per their [instructions](https://www.meilisearch.com/docs/learn/getting_started/installation).
+
+## Backend Configuration
+
+Once you have MeiliSearch setup and an admin key, set the MeiliSearch host and key environment variables:
+
+```
+MEILISEARCH_HOST=<host>
+MEILISEARCH_ADMIN_API_KEY=<your-api-key-here>
+```
+
+## Frontend Configuration
+
+## Commands
+
+Share Me's server provides commands to manage the search index and retrieving API keys. They will become available once the environment variables mentioned above are configured.
+
+To exec into the container with Docker you can use `docker exec`:
+
+```bash
+docker exec -it <container-id>
+```
+
+For Kubernetes use `kubectl exec`:
+
+```bash
+kubectl -n share-me exec -it <container-id> -- /bin/bash
+```
+
+### Syncing Posts
+
+Use `/pb/pocketbase search index sync` to sync all available posts with MeiliSearch. This can be useful if MeiliSearch was added to the stack later on.
+
+### Retrieving Read-Only Key
+
+Use `/pb/pocketbase search key` to get the first read-only key for MeiliSearch found via the API.
+
+### Clearing the Index
+
+Use `/pb/pocketbase search index clear` to clear the index. Only useful for testing.
+
 export default ({ children }) => <Layout>{children}</Layout>;

@@ -1,3 +1,7 @@
 import Layout from "@/components/docs/layout";
 
+OIDC is supported by PocketBase as well as Share Me's frontend. Simply configure the OIDC providers in PocketBase under Settings > Auth providers and use either one of the pre-defined providers or your own OIDC provider.
+
+!> PocketBase handles OAuth redirects at `/api/oauth2-redirect`. For more information see [Authentication](https://pocketbase.io/docs/authentication).
+
 export default ({ children }) => <Layout>{children}</Layout>;

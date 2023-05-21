@@ -1,0 +1,13 @@
+import Layout from "@/components/docs/layout";
+
+# S3
+
+PocketBase supports S3 as a file backend. This includes S3-compatible services such as MinIO or DigitalOcean Spaces.
+
+?> Any files uploaded before configuring S3 must be moved manually to the S3 bucket.
+
+To configure S3, head to the PocketBase admin UI, Settings > Files storage and setup the S3 connection details.
+
+PocketBase will automatically upload any new files to the configured S3 bucket.
+
+export default ({ children }) => <Layout>{children}</Layout>;

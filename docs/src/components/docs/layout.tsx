@@ -51,23 +51,31 @@ function DocsNavbar(props: Omit<NavbarProps, "children">) {
         </Accordion.Item>
         <Accordion.Item value="configuration">
           <Accordion.Control icon={<TbSettings />}>
-            Configuration
+            <Anchor component={Link} href="/configuration" unstyled>
+              Configuration
+            </Anchor>
           </Accordion.Control>
           <Accordion.Panel>
-            <NavLink href="/configuration/file-size-limit">
-              File Size Limit
-            </NavLink>
             <NavLink href="/configuration/pocketbase-url">
               PocketBase URL
             </NavLink>
-            <NavLink href="/configuration/Search">Search</NavLink>
-            <NavLink href="/configuration/Tagger">Tagger</NavLink>
+            <NavLink href="/configuration/search">Search</NavLink>
+            <NavLink href="/configuration/tagger">Tagger</NavLink>
+            <NavLink href="/configuration/file-size-limit">
+              File Size Limit
+            </NavLink>
+            <NavLink href="/configuration/s3">
+              S3
+            </NavLink>
           </Accordion.Panel>
         </Accordion.Item>
         <Accordion.Item value="authentication">
-          <Accordion.Control icon={<TbKey />}>Authentication</Accordion.Control>
+          <Accordion.Control icon={<TbKey />}>
+            <Anchor component={Link} href="/authentication" unstyled>
+              Authentication
+            </Anchor>
+          </Accordion.Control>
           <Accordion.Panel>
-            <NavLink href="/authentication/credentials">Credentials</NavLink>
             <NavLink href="/authentication/oidc">OIDC</NavLink>
           </Accordion.Panel>
         </Accordion.Item>
