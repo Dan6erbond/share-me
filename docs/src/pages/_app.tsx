@@ -1,3 +1,4 @@
+import "@fontsource/fira-code";
 import "@fontsource/inter";
 import {
   Anchor,
@@ -34,7 +35,7 @@ export default function App(props: AppProps) {
         theme={{
           colorScheme: "dark",
           fontFamily: "Inter, Verdana, sans-serif",
-          fontFamilyMonospace: "Inter, Monaco, Courier, monospace",
+          fontFamilyMonospace: "Fira Code, Monaco, Courier, monospace",
           headings: { fontFamily: "Inter, Greycliff CF, sans-serif" },
         }}
       >

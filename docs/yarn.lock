@@ -209,6 +209,11 @@
     aria-hidden "^1.1.3"
     tabbable "^6.0.1"
 
+"@fontsource/fira-code@^5.0.0":
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/@fontsource/fira-code/-/fira-code-5.0.0.tgz#8a3b641869e32b346572cbb2d2f5e77f94bb7caa"
+  integrity sha512-Fq0VOyHfbZI04aeBF9wHAo7xd2bajrnCbxr8P2Ah3r3RSWOZIk58qqMrUpybjtCsJTT9HYj5PgyZJ6wgSypfnA==
+
 "@fontsource/inter@^5.0.0":
   version "5.0.0"
   resolved "https://registry.yarnpkg.com/@fontsource/inter/-/inter-5.0.0.tgz#ef78fd92099feaa0dcda9e1af8fd1ec4c60fe576"
