@@ -1,9 +1,32 @@
-import { Anchor, Footer, Group, Stack, Text, Title } from "@mantine/core";
+import {
+  Anchor,
+  Footer,
+  Group,
+  Stack,
+  Text,
+  Title,
+  em,
+  getBreakpointValue,
+  rem,
+} from "@mantine/core";
 import Link from "next/link";
 
 function DocsFooter() {
   return (
-    <Footer height={136} p="md">
+    <Footer
+      height={136}
+      p="md"
+      sx={(theme) => ({
+        [`@media (max-width: ${em(
+          getBreakpointValue(theme.breakpoints.sm) - 1
+        )})`]: {
+          position: "revert",
+          height: "auto",
+          maxHeight: "none",
+          padding: rem(16),
+        },
+      })}
+    >
       <Stack>
         <Group sx={{ justifyContent: "space-around" }}>
           <Stack>

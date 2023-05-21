@@ -18,7 +18,7 @@ export default function Home() {
   const theme = useMantineTheme();
 
   return (
-    <Layout>
+    <Layout withDocsLink>
       <Box
         sx={(theme) => ({
           background: theme.fn.linearGradient(
