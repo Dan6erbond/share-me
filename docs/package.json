@@ -37,6 +37,7 @@
     "react-dom": "18.2.0",
     "react-icons": "^4.8.0",
     "remark-gfm": "^3.0.1",
+    "remark-hint": "^1.0.10",
     "typescript": "5.0.4"
   }
 }

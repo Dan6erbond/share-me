@@ -3459,6 +3459,13 @@ remark-gfm@^3.0.1:
     micromark-extension-gfm "^2.0.0"
     unified "^10.0.0"
 
+remark-hint@^1.0.10:
+  version "1.0.10"
+  resolved "https://registry.yarnpkg.com/remark-hint/-/remark-hint-1.0.10.tgz#924943a3c1e8fcc8b95b6d31476f796b22da3893"
+  integrity sha512-oSE1/2zbN76UF3VmKnUJNgpT0IOXTZJyUhMWoejMwxudgDuEKqTQz3Lq6+v8uWhOmkHb3W9IQ/42RVMMYCQwrQ==
+  dependencies:
+    unist-builder "^2.0.3"
+
 remark-mdx@^2.0.0:
   version "2.3.0"
   resolved "https://registry.yarnpkg.com/remark-mdx/-/remark-mdx-2.3.0.tgz#efe678025a8c2726681bde8bf111af4a93943db4"
@@ -3921,6 +3928,11 @@ unified@^10.0.0:
     is-plain-obj "^4.0.0"
     trough "^2.0.0"
     vfile "^5.0.0"
+
+unist-builder@^2.0.3:
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/unist-builder/-/unist-builder-2.0.3.tgz#77648711b5d86af0942f334397a33c5e91516436"
+  integrity sha512-f98yt5pnlMWlzP539tPc4grGMsFaQQlP/vM396b00jngsiINumNmsY8rkXjfoi1c6QaM8nQ3vaGDuoKWbe/1Uw==
 
 unist-util-generated@^2.0.0:
   version "2.0.1"
