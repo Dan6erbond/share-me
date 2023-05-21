@@ -3,8 +3,6 @@ import { Prism } from "@mantine/prism";
 import { MDXProvider } from "@mdx-js/react";
 import { AppProps } from "next/app";
 import Head from "next/head";
-import Image from "next/image";
-import { DetailedHTMLProps, HTMLAttributes } from "react";
 
 export default function App(props: AppProps) {
   const { Component, pageProps } = props;

@@ -1,20 +1,19 @@
-import Head from "next/head";
-import Layout from "../components/layout";
-import Image from "next/image";
 import {
   Box,
   Button,
   Center,
   Container,
   Flex,
-  Group,
   MediaQuery,
   Stack,
   Text,
   Title,
   useMantineTheme,
 } from "@mantine/core";
+import Head from "next/head";
+import Image from "next/image";
 import Link from "next/link";
+import Layout from "../components/layout";
 
 export default function Home() {
   const theme = useMantineTheme();
