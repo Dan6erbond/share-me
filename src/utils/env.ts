@@ -1,4 +1,4 @@
-import { pocketBaseUrl } from "../pocketbase";
+import { pocketBaseUrl } from "@/pocketbase";
 
 export interface ShareMeEnv {
   signUpEnabled: boolean;

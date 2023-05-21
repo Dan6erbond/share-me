@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { usePocketBase } from "../pocketbase";
+import { usePocketBase } from "@/pocketbase";
 import { AuthProviderInfo } from "pocketbase";
 
 export const useAuthMethods = () => {

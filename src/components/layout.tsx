@@ -12,8 +12,8 @@ import { IconCirclePlus, IconPhotoPlus } from "@tabler/icons-react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import React, { useEffect, useRef, useState } from "react";
-import { usePasteFiles } from "../hooks/usePasteFiles";
-import { MEDIA_MIME_TYPE } from "../utils/mediaTypes";
+import { usePasteFiles } from "@/hooks/usePasteFiles";
+import { MEDIA_MIME_TYPE } from "@/utils/mediaTypes";
 import Header from "./header";
 
 interface LayoutProps {
