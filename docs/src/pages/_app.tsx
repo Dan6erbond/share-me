@@ -1,3 +1,4 @@
+import "@fontsource/inter";
 import {
   Anchor,
   Box,
@@ -31,8 +32,10 @@ export default function App(props: AppProps) {
         withGlobalStyles
         withNormalizeCSS
         theme={{
-          /** Put your mantine theme override here */
           colorScheme: "dark",
+          fontFamily: "Inter, Verdana, sans-serif",
+          fontFamilyMonospace: "Inter, Monaco, Courier, monospace",
+          headings: { fontFamily: "Inter, Greycliff CF, sans-serif" },
         }}
       >
         <MDXProvider
