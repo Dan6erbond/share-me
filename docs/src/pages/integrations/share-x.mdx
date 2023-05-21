@@ -1,0 +1,24 @@
+import Layout from "@/components/docs/layout";
+
+# ShareX Integration
+
+ShareX is an open-source screen capture, file sharing and productivity tool. [Site](https://getsharex.com/). It can be configured to use Share Me as an upload target with [custom uploaders](https://getsharex.com/docs/custom-uploader).
+
+```json
+{
+  "Version": "15.0.0",
+  "Name": "Share Me",
+  "DestinationType": "ImageUploader",
+  "RequestMethod": "POST",
+  "RequestURL": "https://share-me.example.com/api/posts",
+  "Headers": {
+    "Accept": "*/*",
+    "Authorization": "Bearer <ApiKey>"
+  },
+  "Body": "MultipartFormData",
+  "FileFormName": "files",
+  "URL": "https://share-me.example.com/posts/{json:id}"
+}
+```
+
+export default ({ children }) => <Layout>{children}</Layout>;

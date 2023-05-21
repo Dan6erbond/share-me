@@ -1,0 +1,9 @@
+import Layout from "@/components/docs/layout";
+
+# PocketBase URL
+
+In order to make the frontend and tagger aware of the PocketBase service, the `POCKETBASE_URL` environment variable should be set.
+
+For the Next.js server, if for example Share Me is deployed with Docker and not available through a domain, you can also set the `POCKETBASE_SERVER_URL` environment variable.
+
+export default ({ children }) => <Layout>{children}</Layout>;

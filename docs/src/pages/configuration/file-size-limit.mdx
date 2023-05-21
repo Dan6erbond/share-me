@@ -1,0 +1,17 @@
+import Layout from "@/components/docs/layout";
+import { TbSettings } from "react-icons/tb";
+
+# File Size Limit
+
+Since files are uploaded through PocketBase, their limits can be configured in the PocketBase admin UI. Head to Collections > `files` > Settings <TbSettings /> and edit the file column settings. Set the Max file size to whatever you want.
+
+<div style={{ textAlign: "center" }}>
+  <img
+    src="/file-size-limit.png"
+    alt="PocketBase Maximum File Size Limit"
+    style={{ maxWidth: "min(100%, 600px)", margin: "0 auto 0.5rem auto", display: "block" }}
+  />
+  <span>PocketBase Maximum File Size Limit</span>
+</div>
+
+export default ({ children }) => <Layout>{children}</Layout>;

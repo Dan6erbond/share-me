@@ -1,0 +1,40 @@
+import Layout from "@/components/docs/layout";
+
+# Tagger
+
+A separate tagger service can be deployed as part of the Share Me stack to run object detection on all uploaded files.
+
+It can be added to the Compose stack like so:
+
+```yml
+services:
+  ...
+  tagger:
+    image: ghcr.io/dan6erbond/share-me-tagger:latest
+    environment:
+      POCKETBASE_URL: https://shareme.example.com
+      POCKETBASE_ADMIN_EMAIL: <admin-email>
+      POCKETBASE_ADMIN_PASSWORD: <admin-password>
+    ports:
+      - 5000:80
+```
+
+Once the tagger has been deployed, it can be configured on the server by setting the `TAGGER_HOST` environment variable:
+
+```
+TAGGER_HOST=http://tagger:80
+```
+
+## Running Tagging Manually
+
+The tagger exposes one API route, which detects objects and adds them to the `tagsSuggestions` attribute of a file item:
+
+```bash
+curl -X POST \
+  'http://localhost:5000/files/<fild-id>' \
+  --header 'Accept: */*'
+```
+
+The endpoint will return a `HTTP 202 Accepted` response and run the tagging async. The UI will reflect the suggestions if any are available.
+
+export default ({ children }) => <Layout>{children}</Layout>;

@@ -4,5 +4,8 @@
     "tagger",
     "search",
     "frontend"
-  ]
+  ],
+  "[mdx]": {
+    "editor.wordWrap": "on"
+  }
 }

@@ -1,0 +1,35 @@
+import Layout from "@/components/docs/layout";
+
+PocketBase supports various authentication methods, and provides API endpoints to fetch the enabled methods. Share Me uses this information to enable the login screen and show OIDC methods.
+
+## Disabling Sign-Up
+
+To disable sign-up, the create rule of the `users` collection should be set to `Admin only`.
+
+<div style={{ textAlign: "center" }}>
+  <img
+    src="/users-rules.png"
+    alt="Users Collection API Rules"
+    style={{ maxWidth: "min(100%, 600px)", margin: "0 auto 0.5rem auto", display: "block" }}
+  />
+  <span>Users Collection API Rules</span>
+</div>
+
+The `SIGNUP_ENABLED` environment variable can be set to `false` in the frontend to disable the `/sign-up` page and links.
+
+## Disabling Built-In Auth
+
+To disable built-in auth entirely, go to the `users` collection options and disable `Username/Password` as well as `Email/Password`:
+
+<div style={{ textAlign: "center" }}>
+  <img
+    src="/users-options.png"
+    alt="Users Collection Options"
+    style={{ maxWidth: "min(100%, 600px)", margin: "0 auto 0.5rem auto", display: "block" }}
+  />
+  <span>Users Collection Options</span>
+</div>
+
+The frontend will automatically hide the login form if both options are disabled.
+
+export default ({ children }) => <Layout>{children}</Layout>;
