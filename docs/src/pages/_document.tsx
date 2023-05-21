@@ -14,12 +14,6 @@ export default class _Document extends Document {
     return (
       <Html>
         <Head>
-          <Script
-            async
-            defer
-            data-website-id="d15161c4-19d8-4bec-a060-23e79ca3674b"
-            src="https://umami.ravianand.me/umami.js"
-          />
           <title>{this.siteTitle}</title>
           <meta property="og:title" content={this.siteTitle} />
           <meta name="description" content={this.description} />
@@ -30,6 +24,12 @@ export default class _Document extends Document {
           <meta property="twitter:description" content={this.description} />
           <meta name="viewport" content="width=device-width, initial-scale=1" />
           <link rel="icon" href="/share-me/favicon.ico" />
+          <Script
+            async
+            defer
+            data-website-id="d15161c4-19d8-4bec-a060-23e79ca3674b"
+            src="https://umami.ravianand.me/umami.js"
+          />
         </Head>
         <body>
           <Main />

@@ -1,17 +1,12 @@
 import indexData from "@/lunrIndex.json";
 import {
-  Accordion,
   ActionIcon,
   Anchor,
-  AnchorProps,
-  AppShell,
   Box,
   Burger,
   Group,
   Header,
   MediaQuery,
-  Navbar,
-  NavbarProps,
   Popover,
   Stack,
   Text,
@@ -20,16 +15,9 @@ import {
   useMantineTheme,
 } from "@mantine/core";
 import lunr from "lunr";
-import Link, { LinkProps } from "next/link";
-import React, { useEffect, useRef, useState } from "react";
+import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
 import { FaGithub } from "react-icons/fa";
-import {
-  TbCloudDownload,
-  TbKey,
-  TbPlugConnected,
-  TbSettings,
-} from "react-icons/tb";
-import DocsFooter from "../layout/footer";
 
 interface DocsHeaderProps {
   navbarOpen?: boolean;

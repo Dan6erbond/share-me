@@ -14,8 +14,8 @@ import {
   TbPlugConnected,
   TbSettings,
 } from "react-icons/tb";
-import DocsFooter from "../layout/footer";
-import DocsHeader from "../layout/header";
+import DocsFooter from "@/components/layout/footer";
+import DocsHeader from "@/components/layout/header";
 
 function NavLink(props: AnchorProps & LinkProps) {
   return (
