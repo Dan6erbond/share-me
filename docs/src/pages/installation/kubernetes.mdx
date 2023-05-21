@@ -1,3 +1,157 @@
 import Layout from "@/components/docs/layout";
 
+# Kubernetes
+
+Share Me can be deployed to Kubernetes using its Docker images. Since PocketBase uses SQLite, it should be deployed as a `StatefulSet` or only one replica should be made:
+
+```yml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: share-me-data
+spec:
+  resources:
+    requests:
+      storage: 10Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-path
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: share-me-frontend
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: share-me-frontend
+      app.kubernetes.io/instance: share-me
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: share-me-frontend
+        app.kubernetes.io/instance: share-me
+    spec:
+      containers:
+        - name: share-me-frontend
+          image: ghcr.io/dan6erbond/share-me-frontend
+          imagePullPolicy: Always
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "1"
+          ports:
+            - containerPort: 3000
+          env:
+            - name: POCKETBASE_URL
+              value: https://shareme.example.com
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: share-me-server
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: share-me-server
+      app.kubernetes.io/instance: share-me
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: share-me-server
+        app.kubernetes.io/instance: share-me
+    spec:
+      containers:
+        - name: share-me-frontend
+          image: ghcr.io/dan6erbond/share-me-server
+          imagePullPolicy: Always
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "1"
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - mountPath: /pb/pb_data
+              name: data
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: share-me-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: share-me-frontend
+spec:
+  selector:
+    app.kubernetes.io/name: share-me-frontend
+    app.kubernetes.io/instance: share-me
+  ports:
+    - port: 3000
+      name: http
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: share-me-server
+spec:
+  selector:
+    app.kubernetes.io/name: share-me-server
+    app.kubernetes.io/instance: share-me
+  ports:
+    - port: 8080
+      name: http
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.tls.certresolver: letsencrypt
+  name: share-me
+spec:
+  rules:
+    - host: shareme.example.com
+      http:
+        paths:
+          - backend:
+              service:
+                name: share-me-frontend
+                port:
+                  name: http
+            path: /
+            pathType: Prefix
+          - backend:
+              service:
+                name: share-me-frontend
+                port:
+                  name: http
+            path: /_next
+            pathType: Prefix
+          - backend:
+              service:
+                name: share-me-server
+                port:
+                  name: http
+            path: /api
+            pathType: Prefix
+          - backend:
+              service:
+                name: share-me-server
+                port:
+                  name: http
+            path: /_
+            pathType: Prefix
+```
+
+!> Configure the Ingress for your selected reverse proxy.
+
 export default ({ children }) => <Layout>{children}</Layout>;
