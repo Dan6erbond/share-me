@@ -69,7 +69,7 @@ export default function Home() {
         <Flex wrap="wrap" p="md" mb="xl">
           <Box h={600} miw={250} pos="relative" sx={{ flex: 1 }}>
             <Image
-              src="/list.png"
+              src="/share-me/list.png"
               fill
               alt="List View of Posts"
               style={{ objectFit: "contain" }}
@@ -78,7 +78,7 @@ export default function Home() {
           <Stack miw={250} sx={{ flex: 1 }}>
             <Box mih={200} w="100%" pos="relative" sx={{ flex: 1 }}>
               <Image
-                src="/home.png"
+                src="/share-me/home.png"
                 fill
                 alt="List View of Posts"
                 style={{ objectFit: "contain" }}
@@ -86,7 +86,7 @@ export default function Home() {
             </Box>
             <Box mih={200} w="100%" pos="relative" sx={{ flex: 1 }}>
               <Image
-                src="/post.png"
+                src="/share-me/post.png"
                 fill
                 alt="List View of Posts"
                 style={{ objectFit: "contain" }}

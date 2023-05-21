@@ -1,4 +1,5 @@
 import {
+  Anchor,
   Box,
   Code,
   DefaultMantineColor,
@@ -10,6 +11,7 @@ import { Prism } from "@mantine/prism";
 import { MDXProvider } from "@mdx-js/react";
 import { AppProps } from "next/app";
 import Head from "next/head";
+import Link from "next/link";
 import { BsFillExclamationTriangleFill } from "react-icons/bs";
 import { HiOutlineExclamationTriangle } from "react-icons/hi2";
 import { IconType } from "react-icons/lib";
@@ -112,6 +114,7 @@ export default function App(props: AppProps) {
               }
               return <p {...props}></p>;
             },
+            a: (props) => <Anchor component={Link} {...(props as any)} />,
           }}
         >
           <Component {...pageProps} />

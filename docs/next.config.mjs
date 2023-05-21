@@ -20,7 +20,7 @@ const nextConfig = {
   pageExtensions: ["ts", "tsx", "js", "jsx", "md", "mdx"],
   reactStrictMode: true,
   output: "export",
-  basePath: "/docs",
+  basePath: "/share-me",
   images: {
     unoptimized: true,
   },
