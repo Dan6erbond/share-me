@@ -11,6 +11,7 @@ import { Prism } from "@mantine/prism";
 import { MDXProvider } from "@mdx-js/react";
 import { AppProps } from "next/app";
 import Link from "next/link";
+import Script from "next/script";
 import { HiOutlineExclamationTriangle } from "react-icons/hi2";
 import { IconType } from "react-icons/lib";
 import { TbExclamationCircle } from "react-icons/tb";
@@ -20,6 +21,12 @@ export default function App(props: AppProps) {
 
   return (
     <>
+      <Script
+        async
+        defer
+        data-website-id="d15161c4-19d8-4bec-a060-23e79ca3674b"
+        src="https://umami.ravianand.me/umami.js"
+      />
       <MantineProvider
         withGlobalStyles
         withNormalizeCSS
