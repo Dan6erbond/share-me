@@ -12,13 +12,16 @@ import {
   Text,
   TextInput,
   Title,
+  em,
+  getBreakpointValue,
+  rem,
   useMantineTheme,
 } from "@mantine/core";
 import lunr from "lunr";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { FaGithub } from "react-icons/fa";
-import { TbHome } from "react-icons/tb";
+import { TbArrowLeft, TbHome, TbSearch } from "react-icons/tb";
 
 interface DocsHeaderProps {
   navbarOpen?: boolean;
@@ -37,17 +40,21 @@ function DocsHeader({ navbarOpen, toggleNavbar }: DocsHeaderProps) {
   }, []);
 
   const [search, setSearch] = useState("");
+  const [showSearch, setShowSearch] = useState(false);
   const [searchResults, setSearchResults] = useState([] as lunr.Index.Result[]);
+  const [searchOpened, setSearchOpened] = useState(false);
 
   useEffect(() => {
     const searchResults = (search && idx.current?.search(search)) || [];
     setSearchResults(searchResults);
   }, [idx, search, setSearchResults]);
 
+  const navbarEnabled = navbarOpen !== undefined && toggleNavbar;
+
   return (
-    <Header height={74}>
-      <Group h="100%" px="md">
-        {navbarOpen !== undefined && toggleNavbar && (
+    <Header height={theme.other.headerHeight}>
+      <Group h="100%" px="md" pos="relative">
+        {navbarEnabled && (
           <MediaQuery largerThan="sm" styles={{ display: "none" }}>
             <Burger
               opened={navbarOpen}
@@ -137,7 +144,7 @@ function DocsHeader({ navbarOpen, toggleNavbar }: DocsHeaderProps) {
           </Anchor>
         </MediaQuery>
 
-        <Box sx={{ flex: 1, width: "auto" }} />
+        <Box sx={{ flexGrow: 1, width: "auto" }} />
         <MediaQuery smallerThan="sm" styles={{ display: "none" }}>
           <ActionIcon
             size="xl"
@@ -148,17 +155,62 @@ function DocsHeader({ navbarOpen, toggleNavbar }: DocsHeaderProps) {
             <FaGithub size={24} />
           </ActionIcon>
         </MediaQuery>
-        <Popover width={400} position="bottom-end">
+
+        <MediaQuery largerThan="sm" styles={{ display: "none" }}>
+          <ActionIcon onClick={() => setShowSearch((s) => !s)}>
+            <TbSearch />
+          </ActionIcon>
+        </MediaQuery>
+
+        <Popover
+          width="target"
+          position="bottom-end"
+          opened={searchResults.length > 0 && searchOpened}
+          transitionProps={{ transition: "slide-down" }}
+        >
           <Popover.Target>
-            <TextInput
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              radius="xl"
-              placeholder="Search..."
-              w={{ base: 150, sm: 250 }}
-            />
+            <Box
+              w={{ base: "100%", sm: 250 }}
+              sx={(theme) => ({
+                [`@media (max-width: ${em(
+                  getBreakpointValue(theme.breakpoints.sm) - 1
+                )})`]: {
+                  top: showSearch ? 0 : 0 - theme.other.headerHeight,
+                  left: 0,
+                  position: "absolute",
+                  padding: rem(16),
+                  transition: "top ease 0.15s",
+                },
+              })}
+              bg="dark.7"
+              onFocusCapture={() => setSearchOpened(true)}
+              onBlurCapture={() => setSearchOpened(false)}
+            >
+              <Group>
+                <MediaQuery largerThan="sm" styles={{ display: "none" }}>
+                  <ActionIcon
+                    onClick={() => {
+                      setShowSearch(false);
+                      setSearchOpened(false);
+                    }}
+                  >
+                    <TbArrowLeft />
+                  </ActionIcon>
+                </MediaQuery>
+                <TextInput
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  radius="xl"
+                  placeholder="Search..."
+                  sx={{ flexGrow: 1 }}
+                />
+              </Group>
+            </Box>
           </Popover.Target>
-          <Popover.Dropdown p={0}>
+          <Popover.Dropdown
+            p={0}
+            onClickCapture={() => setShowSearch((s) => !s)}
+          >
             <Stack>
               {searchResults.map((res) => (
                 <Anchor

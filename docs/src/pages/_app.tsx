@@ -12,17 +12,38 @@ import {
 import { Prism } from "@mantine/prism";
 import { MDXProvider } from "@mdx-js/react";
 import { AppProps } from "next/app";
+import Head from "next/head";
 import Link from "next/link";
 import Script from "next/script";
 import { HiOutlineExclamationTriangle } from "react-icons/hi2";
 import { IconType } from "react-icons/lib";
 import { TbExclamationCircle } from "react-icons/tb";
 
+declare module "@mantine/core" {
+  export interface MantineThemeOther {
+    headerHeight: number;
+  }
+}
+
 export default function App(props: AppProps) {
   const { Component, pageProps } = props;
 
+  const siteTitle = "Share Me";
+  const description = "Share images and videos on your own private server.";
+
   return (
     <>
+      <Head>
+        <title>{siteTitle}</title>
+        <meta property="og:title" content={siteTitle} />
+        <meta name="description" content={description} />
+        {/* <meta property="og:url" content={url} /> */}
+        <meta property="og:type" content="summary" />
+        <meta property="twitter:card" content="summary" />
+        <meta property="twitter:title" content={siteTitle} />
+        <meta property="twitter:description" content={description} />
+        <link rel="icon" href="/share-me/favicon.ico" />
+      </Head>
       <Script
         async
         defer
@@ -37,6 +58,9 @@ export default function App(props: AppProps) {
           fontFamily: "Inter, Verdana, sans-serif",
           fontFamilyMonospace: "Fira Code, Monaco, Courier, monospace",
           headings: { fontFamily: "Inter, Greycliff CF, sans-serif" },
+          other: {
+            headerHeight: 74,
+          },
         }}
       >
         <MDXProvider
@@ -82,7 +106,7 @@ export default function App(props: AppProps) {
                     my="md"
                     sx={{ overflow: "hidden" }}
                   >
-                    <Group align="stretch">
+                    <Group align="stretch" noWrap>
                       <Box
                         sx={(theme) => ({
                           background: theme.colors[color][4],
