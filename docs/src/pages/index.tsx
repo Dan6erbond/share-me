@@ -51,7 +51,12 @@ export default function Home() {
               >
                 Installation
               </Button>
-              <Button variant="gradient" radius="xl" disabled>
+              <Button
+                variant="gradient"
+                component="a"
+                href="http://130.61.14.58:3000/"
+                radius="xl"
+              >
                 Demo
               </Button>
             </Flex>
