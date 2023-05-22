@@ -43,6 +43,7 @@ function DocsHeader({ navbarOpen, toggleNavbar }: DocsHeaderProps) {
   const [showSearch, setShowSearch] = useState(false);
   const [searchResults, setSearchResults] = useState([] as lunr.Index.Result[]);
   const [searchOpened, setSearchOpened] = useState(false);
+  const popoverDropdown = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const searchResults = (search && idx.current?.search(search)) || [];
@@ -184,7 +185,10 @@ function DocsHeader({ navbarOpen, toggleNavbar }: DocsHeaderProps) {
               })}
               bg="dark.7"
               onFocusCapture={() => setSearchOpened(true)}
-              onBlurCapture={() => setSearchOpened(false)}
+              onBlurCapture={(ev) => {
+                if (popoverDropdown.current?.contains(ev.relatedTarget)) return;
+                setSearchOpened(false);
+              }}
             >
               <Group>
                 <MediaQuery largerThan="sm" styles={{ display: "none" }}>
@@ -211,7 +215,7 @@ function DocsHeader({ navbarOpen, toggleNavbar }: DocsHeaderProps) {
             p={0}
             onClickCapture={() => setShowSearch((s) => !s)}
           >
-            <Stack>
+            <Stack ref={popoverDropdown}>
               {searchResults.map((res) => (
                 <Anchor
                   key={res.ref}
