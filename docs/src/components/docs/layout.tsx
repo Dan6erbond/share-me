@@ -1,3 +1,5 @@
+import Footer from "@/components/layout/footer";
+import Header from "@/components/layout/header";
 import {
   Accordion,
   Anchor,
@@ -6,6 +8,7 @@ import {
   Navbar,
   NavbarProps,
 } from "@mantine/core";
+import Head from "next/head";
 import Link, { LinkProps } from "next/link";
 import React, { useState } from "react";
 import {
@@ -14,8 +17,6 @@ import {
   TbPlugConnected,
   TbSettings,
 } from "react-icons/tb";
-import DocsFooter from "@/components/layout/footer";
-import DocsHeader from "@/components/layout/header";
 
 function NavLink(props: AnchorProps & LinkProps) {
   return (
@@ -64,9 +65,7 @@ function DocsNavbar(props: Omit<NavbarProps, "children">) {
             <NavLink href="/configuration/file-size-limit">
               File Size Limit
             </NavLink>
-            <NavLink href="/configuration/s3">
-              S3
-            </NavLink>
+            <NavLink href="/configuration/s3">S3</NavLink>
           </Accordion.Panel>
         </Accordion.Item>
         <Accordion.Item value="authentication">
@@ -95,9 +94,14 @@ function DocsNavbar(props: Omit<NavbarProps, "children">) {
 
 interface LayoutProps {
   children: React.ReactNode;
+  meta?: DocsMeta;
 }
 
-function Layout({ children }: LayoutProps) {
+interface DocsMeta {
+  title: string;
+}
+
+function Layout({ children, meta }: LayoutProps) {
   const [opened, setOpened] = useState(false);
 
   const toggleNavbar = () => setOpened((o) => !o);
@@ -105,7 +109,7 @@ function Layout({ children }: LayoutProps) {
   return (
     <AppShell
       padding="md"
-      header={<DocsHeader navbarOpen={opened} toggleNavbar={toggleNavbar} />}
+      header={<Header navbarOpen={opened} toggleNavbar={toggleNavbar} />}
       navbarOffsetBreakpoint="sm"
       navbar={
         <DocsNavbar
@@ -114,8 +118,11 @@ function Layout({ children }: LayoutProps) {
           width={{ sm: 200, lg: 300 }}
         />
       }
-      footer={<DocsFooter />}
+      footer={<Footer />}
     >
+      <Head>
+        <title>Share Me | {meta?.title ?? "Documentation"}</title>
+      </Head>
       {children}
     </AppShell>
   );

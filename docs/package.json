@@ -38,8 +38,13 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-icons": "^4.8.0",
+    "remark-frontmatter": "^4.0.1",
     "remark-gfm": "^3.0.1",
     "remark-hint": "^1.0.10",
+    "remark-mdx-frontmatter": "^3.0.0",
     "typescript": "5.0.4"
+  },
+  "devDependencies": {
+    "gray-matter": "^4.0.3"
   }
 }

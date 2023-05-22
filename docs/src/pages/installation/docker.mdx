@@ -1,3 +1,7 @@
+---
+title: Docker
+---
+
 import Layout from "@/components/docs/layout";
 
 # Docker
@@ -76,4 +80,4 @@ services:
 
 The tagger needs to be configured in the server, in order to register the event hooks to generate tags when files are uploaded. For more information see [Tagger Configuration](/configuration/tagger).
 
-export default ({ children }) => <Layout>{children}</Layout>;
+export default ({ children }) => <Layout meta={frontmatter}>{children}</Layout>;
